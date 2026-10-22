@@ -1,0 +1,19 @@
+{
+  "name": "Gully Ka Badshah",
+  "short_name": "Gully Badshah",
+  "description": "A desi endless runner. Run through the gali, dodge autos, collect coins and chai boosts.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#102a24",
+  "theme_color": "#102a24",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
