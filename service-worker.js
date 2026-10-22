@@ -1,4 +1,4 @@
-const CACHE_NAME = "gully-ka-badshah-v2";
+const CACHE_NAME = "gully-ka-badshah-v3";
 const APP_SHELL = [
   "./",
   "./index.html",
