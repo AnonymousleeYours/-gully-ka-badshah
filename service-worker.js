@@ -1,4 +1,4 @@
-const CACHE_NAME = "gully-ka-badshah-v1";
+const CACHE_NAME = "gully-ka-badshah-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -24,16 +24,32 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request).then((response) => {
-        if (response && response.ok && new URL(event.request.url).origin === self.location.origin) {
+  const url = new URL(event.request.url);
+  const isAppDocument = url.origin === self.location.origin &&
+    (url.pathname.endsWith("/") || url.pathname.endsWith("/index.html"));
+  // Network-first HTML prevents stale cached game code from hiding updates.
+  if (isAppDocument) {
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        if (response && response.ok) {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         }
         return response;
-      }).catch(() => caches.match("./index.html"));
+      }).catch(() => caches.match(event.request).then((cached) => cached || caches.match("./index.html")))
+    );
+    return;
+  }
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      if (cached) return cached;
+      return fetch(event.request).then((response) => {
+        if (response && response.ok && url.origin === self.location.origin) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        }
+        return response;
+      }).catch(() => caches.match("./index.html"))
     })
   );
 });
