@@ -98,23 +98,23 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 <script>
 (() => {
 'use strict';
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d',{alpha:false, desynchronized:true});
 const $=id=>document.getElementById(id);
-let W=innerWidth,H=innerHeight,DPR=1;
+let W=innerWidth,H=innerHeight,DPR=1;\nlet hudTick=0;
 let state='menu',last=0,elapsed=0,distance=0,score=0,coins=0,best=0,speed=0.34,world=0;
 let objects=[],particles=[],lane=0,targetLane=0,playerY=0,vy=0,slide=0,chai=0,invuln=0,spawnIn=0;
 let soundOn=true,audioCtx=null,toastTimer=0,shake=0;
 const lanes=[-1,0,1];
 try{best=Number(localStorage.getItem('gkb-best')||0)}catch(e){}
 $('best').textContent=best;
-function resize(){W=innerWidth;H=innerHeight;DPR=Math.min(devicePixelRatio||1,2);canvas.width=Math.floor(W*DPR);canvas.height=Math.floor(H*DPR);canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0)}
+function resize(){W=innerWidth;H=innerHeight;DPR=Math.min(devicePixelRatio||1,1.5);canvas.width=Math.floor(W*DPR);canvas.height=Math.floor(H*DPR);canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0)}
 addEventListener('resize',resize);resize();
 function rnd(a,b){return a+Math.random()*(b-a)}
 function beep(freq=440,dur=.07,type='sine',vol=.035){if(!soundOn)return;try{audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(vol,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+dur);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+dur)}catch(e){}}
-function reset(){elapsed=0;distance=0;score=0;coins=0;speed=.34;world=0;objects=[];particles=[];lane=0;targetLane=0;playerY=0;vy=0;slide=0;chai=0;invuln=0;spawnIn=.35;shake=0;updateHUD()}
+function reset(){elapsed=0;distance=0;score=0;coins=0;speed=.34;world=0;objects=[];particles=[];lane=0;targetLane=0;playerY=0;vy=0;slide=0;chai=0;invuln=0;spawnIn=.35;shake=0;updateHUD(true)}
 function startGame(){reset();state='playing';$('start').classList.add('hidden');$('end').classList.add('hidden');beep(600,.1)}
 function finish(){if(state!=='playing')return;state='over';shake=12;best=Math.max(best,score);try{localStorage.setItem('gkb-best',String(best))}catch(e){}$('finalScore').textContent=score;$('finalCoins').textContent=coins;$('finalBest').textContent=best;$('endLine').textContent=score>1500?'Gali ke asli badshah! Kya run tha!':score>500?'Bhai, mast khele! Agli baar record todna.':'Arre yaar! Ek aur try maar, champion.';$('endEmoji').textContent=score>1500?'👑':score>500?'😎':'😵‍💫';$('end').classList.remove('hidden');updateHUD();beep(130,.3,'sawtooth')}
-function updateHUD(){$('score').textContent=score;$('coins').textContent=coins;$('best').textContent=Math.max(best,score);$('powerTag').classList.toggle('on',chai>0);$('powerTag').textContent=chai>0?'☕ CHAI BOOST! '+chai.toFixed(1)+'s':'☕ CHAI BOOST!'}
+function updateHUD(force=false){if(!force&&state==='playing'&&performance.now()-hudTick<90)return;hudTick=performance.now();$('score').textContent=score;$('coins').textContent=coins;$('best').textContent=Math.max(best,score);$('powerTag').classList.toggle('on',chai>0);$('powerTag').textContent=chai>0?'☕ CHAI BOOST! '+chai.toFixed(1)+'s':'☕ CHAI BOOST!'}
 function toast(text){$('toast').textContent=text;$('toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.remove('show'),850)}
 function move(d){if(state!=='playing')return;targetLane=Math.max(-1,Math.min(1,targetLane+d));beep(250+targetLane*70,.04,'triangle',.018)}
 function jump(){if(state!=='playing')return;if(playerY<=0.01){vy=1.55;slide=0;beep(520,.08,'triangle')}}
@@ -206,7 +206,7 @@ function draw(){ctx.save();if(shake>0)ctx.translate(rnd(-shake,shake),rnd(-shake
  drawPlayer();drawParticles();
  if(state==='paused'){ctx.fillStyle='#001b17aa';ctx.fillRect(0,0,W,H);ctx.textAlign='center';ctx.fillStyle='#ffe16a';ctx.font='1000 34px system-ui';ctx.fillText('PAUSED',W/2,H/2);ctx.fillStyle='#fff';ctx.font='bold 14px system-ui';ctx.fillText('Tap screen or press P to resume',W/2,H/2+30)}
  ctx.restore()}
-function frame(now){let dt=Math.min(.035,(now-last)/1000||0);last=now;if(state==='playing')update(dt);else{world+=dt*.2;for(let p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}particles=particles.filter(p=>p.life>0)}draw();requestAnimationFrame(frame)}
+function frame(now){let dt=Math.min(.05,(now-last)/1000||0);last=now;if(state==='playing')update(dt);else{world+=dt*.2;for(let p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}particles=particles.filter(p=>p.life>0)}draw();requestAnimationFrame(frame)}
 requestAnimationFrame(frame);
 })();
 </script>
