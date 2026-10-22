@@ -67,13 +67,17 @@ function makeStall(x,z,side,kind){
 function makeAuto(parent){const g=new THREE.Group();box(g,M.yellow,0,.72,0,1.55,.62,1.55);box(g,M.green,0,1.2,-.05,1.2,.55,1.1);box(g,M.glass,-.32,1.23,.52,.42,.34,.05);box(g,M.glass,.32,1.23,.52,.42,.34,.05);box(g,M.cream,0,.94,.81,1.2,.12,.04);for(const x of [-.55,.55])for(const z of [-.48,.48]){cylinder(g,M.dark,x,.28,z,.2,.16).rotation.z=Math.PI/2;cylinder(g,mat('#929a9b'),x,.28,z,.1,.17).rotation.z=Math.PI/2}return g}
 function makeCow(parent){const g=new THREE.Group();ball(g,M.cream,0,.68,0,.58);g.scale.set(1.15,1,1);ball(g,mat('#8b5a43'),-.25,.85,.43,.2);ball(g,M.cream,.32,.93,.15,.35);ball(g,M.cream,.55,.96,.15,.12);ball(g,M.dark,.42,1.03,.44,.045);for(const x of [-.32,0,.3])box(g,M.wood,x,.27,0,.12,.52,.12);return g}
 function makePothole(parent){const g=new THREE.Group();
- // Make road damage unmistakable from the player's camera: pale broken rim,
- // deep center, and a high-contrast warning ring rather than a flat dark disc.
- cylinder(g,mat('#171f20'),0,.075,0,.57,.13);
- const rim=mesh(new THREE.TorusGeometry(.48,.105,6,16),mat('#f6d75d'),g,0,.15,0);rim.rotation.x=Math.PI/2;
- const inner=mesh(new THREE.TorusGeometry(.30,.045,5,14),mat('#e8e2c7'),g,0,.155,0);inner.rotation.x=Math.PI/2;
- box(g,mat('#171f20'),0,.17,0,.55,.035,.12);
- for(let i=0;i<4;i++){const mark=box(g,mat('#fff0b5'),-.36+i*.24,.19,.39,.16,.035,.08);mark.rotation.y=(i%2?-.18:.18)}
+ // High-contrast hole plus a floating warning beacon visible from far away.
+ cylinder(g,mat('#11191b'),0,.075,0,.62,.14);
+ const rim=mesh(new THREE.TorusGeometry(.51,.12,6,16),mat('#ffe14a'),g,0,.16,0);rim.rotation.x=Math.PI/2;
+ const inner=mesh(new THREE.TorusGeometry(.31,.055,5,14),mat('#f8f0d0'),g,0,.17,0);inner.rotation.x=Math.PI/2;
+ box(g,mat('#11191b'),0,.18,0,.58,.04,.16);
+ const beacon=new THREE.Group();beacon.position.set(0,1.75,0);g.add(beacon);
+ const glow=mesh(new THREE.OctahedronGeometry(.32,0),mat('#ffcf32',.35),beacon,0,0,0,1,1.2,.35);
+ const stem=box(beacon,mat('#fff5ce'),0,-.48,0,.09,.55,.09);
+ const ex=box(beacon,mat('#df382c'),0,.02,.1,.11,.38,.1);
+ ball(beacon,mat('#fff5ce'),0,-.25,.1,.075);
+ g.userData.warning=beacon;
  return g}
 function makeBanner(parent){const g=new THREE.Group();box(g,M.wood,-.55,1.15,0,.08,2.3,.08);box(g,M.wood,.55,1.15,0,.08,2.3,.08);box(g,M.red,0,1.75,0,1.2,.48,.08);return g}
 function makePlayer(){
@@ -127,7 +131,7 @@ function update(dt){elapsed+=dt;distance+=dt*(chai>0?1.35:1);speed=Math.min(22,1
  for(const d of decorGroup.children){d.position.z+=speed*dt*.92;if(d.position.z>8)d.position.z-=112;const b=d.userData.bob;if(b){d.position.y=b.baseY+Math.sin(worldTime*2.1+b.phase)*b.amp;d.rotation.z=Math.sin(worldTime*1.4+b.phase)*.008}}
  spawnTimer-=dt;if(spawnTimer<=0){spawnObstacle();spawnTimer=Math.max(.48,1.05-elapsed*.003)*(0.8+Math.random()*.4)}
  coinTimer-=dt;if(coinTimer<=0){if(Math.random()<.88)spawnCoinLine();coinTimer=.45+Math.random()*.38}
- for(const o of obstaclePool){if(!o.active)continue;o.z+=speed*dt*(chai>0?1.16:1);o.g.position.z=o.z;if(o.z>5){o.active=false;o.g.visible=false;continue}if(!o.hit&&Math.abs(o.z-3.2)<.62&&Math.abs(lane-o.lane)<.34&&invuln<=0){const safe=jumpY>(o.type==='pothole'?.48:o.type==='banner'?.05:.98)||(slide>0&&o.type==='banner');if(!safe){o.hit=true;if(chai>0){chai=0;invuln=1;burst(player.position.x,1,3,'#ffe16a',14);toast('CHAI SHIELD SAVED YOU!')}else{toast('TAKRA GAYA!');finish()}}}}
+ for(const o of obstaclePool){if(!o.active)continue;o.z+=speed*dt*(chai>0?1.16:1);o.g.position.z=o.z;if(o.type==='pothole'&&o.g.userData.warning){o.g.userData.warning.rotation.y=Math.sin(worldTime*3)*.12;o.g.userData.warning.position.y=1.72+Math.sin(worldTime*5)*.10}if(o.z>5){o.active=false;o.g.visible=false;continue}if(!o.hit&&Math.abs(o.z-3.2)<.42&&Math.abs(lane-o.lane)<.43&&invuln<=0){const safe=jumpY>(o.type==='pothole'?.32:o.type==='banner'?.05:.98)||(slide>0&&o.type==='banner');if(!safe){o.hit=true;if(chai>0){chai=0;invuln=1;burst(player.position.x,1,3,'#ffe16a',14);toast('CHAI SHIELD SAVED YOU!')}else{toast('HIT: '+o.type.toUpperCase());finish()}}}}
  for(const c of coinPool){if(!c.active)continue;c.z+=speed*dt;c.g.position.z=c.z;c.g.position.y=1.25+Math.sin(worldTime*5+c.phase)*.15;c.g.rotation.z=worldTime*2;if(c.z>2.4&&c.z<4&&c.lane===Math.round(lane)){coins++;c.active=false;c.g.visible=false;burst(player.position.x,1,3,'#ffd447',4);beep(750,.035)}else if(c.z>5){c.active=false;c.g.visible=false}}
  for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.life-=dt;p.m.position.x+=p.vx*dt;p.m.position.y+=p.vy*dt;p.m.position.z+=p.vz*dt;p.vy-=7*dt;p.m.scale.multiplyScalar(.97);if(p.life<=0){particleGroup.remove(p.m);if(p.m.material)p.m.material.dispose();particles.splice(i,1)}}
  environmentTimer+=dt;if(environmentTimer>32){environmentTimer=0;setEnvironment(environment+1)}
