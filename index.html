@@ -49,22 +49,22 @@ function box(parent,m,x,y,z,sx,sy,sz){return mesh(boxGeo,m,parent,x,y,z,sx,sy,sz
 function ball(parent,m,x,y,z,s){return mesh(sphereGeo,m,parent,x,y,z,s,s,s)}
 function cylinder(parent,m,x,y,z,r,h){return mesh(cylGeo,m,parent,x,y,z,r,h,r)}
 function clearGroup(g){while(g.children.length){const o=g.children[0];g.remove(o);if(o.geometry&&o.geometry!==boxGeo&&o.geometry!==sphereGeo&&o.geometry!==cylGeo)o.geometry.dispose();if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms)if(!Object.values(M).includes(m))m.dispose()}}}
-function makeBuilding(x,z,side,kind){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.025};decorGroup.add(g);const colors=['#d86d4a','#e6a35c','#9a6458','#e8cc8a','#6ba18c','#d6a4a0'];const wall=mat(colors[kind%colors.length]);box(g,wall,0,2,0,3.4,4,2.2);box(g,mat('#73453b'),0,4.08,0,3.65,.16,2.4);for(let wx of [-.9,.9]){box(g,M.dark,wx,2.25,1.12,.48,.85,.08);box(g,mat('#4a382f'),wx,1.77,1.16,.55,.08,.1)}box(g,mat(kind%2?'#c44832':'#20795f'),0,1.35,1.18,1.65,.42,.16);box(g,M.cream,0,1.35,1.28,1.3,.2,.04);if(kind%3===0){box(g,M.wood,side*.3,.7,1.35,.18,1.2,.18);cylinder(g,M.red,-.45,.9,1.3,.13,.5)}return g}
+function makeBuilding(x,z,side,kind){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.025};decorGroup.add(g);const colors=['#d86d4a','#e6a35c','#9a6458','#e8cc8a','#6ba18c','#d6a4a0'];const wall=mat(colors[kind%colors.length]);mesh(new THREE.CapsuleGeometry(1,1.45,4,8),wall,g,0,2,0,1.65,1.2,1.05);mesh(new THREE.CapsuleGeometry(1,.25,3,8),mat('#73453b'),g,0,3.72,0,1.82,.62,1.18);for(let wx of [-.9,.9]){box(g,M.dark,wx,2.25,1.12,.48,.85,.08);box(g,mat('#4a382f'),wx,1.77,1.16,.55,.08,.1)}box(g,mat(kind%2?'#c44832':'#20795f'),0,1.35,1.18,1.65,.42,.16);box(g,M.cream,0,1.35,1.28,1.3,.2,.04);if(kind%3===0){box(g,M.wood,side*.3,.7,1.35,.18,1.2,.18);cylinder(g,M.red,-.45,.9,1.3,.13,.5)}return g}
 function makeTree(x,z){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.045};decorGroup.add(g);cylinder(g,M.wood,0,.9,0,.14,1.8);ball(g,M.leaf,0,2.05,0,.85);ball(g,mat('#2f7e4b'),-.48,1.9,.05,.55);ball(g,mat('#4c9a58'),.45,1.9,-.08,.52);return g}
 function makeLamp(x,z){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.018};decorGroup.add(g);cylinder(g,M.dark,0,1.5,0,.055,3);box(g,M.dark,.28,2.9,0,.6,.06,.06);ball(g,M.yellow,.55,2.82,0,.12);return g}
 function makeStall(x,z,side,kind){
  const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.035};decorGroup.add(g);
  const canopy=[M.red,M.yellow,M.green][kind%3],counter=[mat('#b85b36'),mat('#317c67'),mat('#bd873b')][kind%3];
- box(g,M.wood,0,.58,0,1.5,.72,.8);box(g,counter,0,.88,.08,1.62,.12,.9);
- for(const sx of [-.68,.68]){box(g,M.wood,sx,1.35,0,.08,1.05,.08);box(g,canopy,sx*.52,1.86,0,.82,.12,1.02)}
- box(g,canopy,0,1.83,0,.7,.12,1.02);
+ mesh(new THREE.CapsuleGeometry(.38,.42,4,8),M.wood,g,0,.58,0,1.9,1,.95);mesh(new THREE.CapsuleGeometry(.08,.68,3,6),counter,g,0,.88,.08,1.9,.3,1.15);
+ for(const sx of [-.68,.68]){box(g,M.wood,sx,1.35,0,.08,1.05,.08);mesh(new THREE.CapsuleGeometry(.12,.35,3,6),canopy,g,sx*.52,1.86,0,2.5,.65,2.4)}
+ mesh(new THREE.CapsuleGeometry(.12,.28,3,6),canopy,g,0,1.83,0,2.6,.65,2.4);
  for(let j=0;j<5;j++)box(g,j%2?M.yellow:M.cream,-.6+j*.3,1.73,.48,.25,.2,.04);
  for(const sx of [-.48,.48]){const wheel=cylinder(g,M.dark,sx,.2,.43,.18,.1);wheel.rotation.x=Math.PI/2;const hub=cylinder(g,M.edge,sx,.2,.49,.07,.11);hub.rotation.x=Math.PI/2}
  for(let j=0;j<4;j++)ball(g,[M.red,M.yellow,M.green,M.red][(j+kind)%4],-.48+j*.32,1.04,.32,.11);
  box(g,M.cream,0,1.48,.53,.78,.22,.06);
  return g
 }
-function makeAuto(parent){const g=new THREE.Group();box(g,M.yellow,0,.72,0,1.55,.62,1.55);box(g,M.green,0,1.2,-.05,1.2,.55,1.1);box(g,M.glass,-.32,1.23,.52,.42,.34,.05);box(g,M.glass,.32,1.23,.52,.42,.34,.05);box(g,M.cream,0,.94,.81,1.2,.12,.04);for(const x of [-.55,.55])for(const z of [-.48,.48]){cylinder(g,M.dark,x,.28,z,.2,.16).rotation.z=Math.PI/2;cylinder(g,mat('#929a9b'),x,.28,z,.1,.17).rotation.z=Math.PI/2}return g}
+function makeAuto(parent){const g=new THREE.Group();mesh(new THREE.CapsuleGeometry(.62,.52,4,8),M.yellow,g,0,.72,0,1.18,.78,1.18);mesh(new THREE.CapsuleGeometry(.48,.32,4,8),M.green,g,0,1.18,-.05,1.08,.8,.98);mesh(new THREE.CapsuleGeometry(.16,.12,3,8),M.glass,g,-.3,1.22,.43,1,.9,.25);mesh(new THREE.CapsuleGeometry(.16,.12,3,8),M.glass,g,.3,1.22,.43,1,.9,.25);mesh(new THREE.CapsuleGeometry(.08,.45,3,8),M.cream,g,0,.94,.65,1,.35,.15);for(const x of [-.55,.55])for(const z of [-.48,.48]){cylinder(g,M.dark,x,.28,z,.2,.16).rotation.z=Math.PI/2;cylinder(g,mat('#929a9b'),x,.28,z,.1,.17).rotation.z=Math.PI/2}return g}
 function makeCow(parent){const g=new THREE.Group();ball(g,M.cream,0,.68,0,.58);g.scale.set(1.15,1,1);ball(g,mat('#8b5a43'),-.25,.85,.43,.2);ball(g,M.cream,.32,.93,.15,.35);ball(g,M.cream,.55,.96,.15,.12);ball(g,M.dark,.42,1.03,.44,.045);for(const x of [-.32,0,.3])box(g,M.wood,x,.27,0,.12,.52,.12);return g}
 function makePothole(parent){const g=new THREE.Group();
  // High-contrast hole plus a floating warning beacon visible from far away.
@@ -79,7 +79,7 @@ function makePothole(parent){const g=new THREE.Group();
  ball(beacon,mat('#fff5ce'),0,-.25,.1,.075);
  g.userData.warning=beacon;
  return g}
-function makeBanner(parent){const g=new THREE.Group();box(g,M.wood,-.55,1.15,0,.08,2.3,.08);box(g,M.wood,.55,1.15,0,.08,2.3,.08);box(g,M.red,0,1.75,0,1.2,.48,.08);return g}
+function makeBanner(parent){const g=new THREE.Group();for(const x of [-.55,.55])mesh(new THREE.CapsuleGeometry(.045,.95,3,6),M.wood,g,x,1.15,0);mesh(new THREE.CapsuleGeometry(.22,.72,4,8),M.red,g,0,1.75,0,1.45,.68,.22);return g}
 function makePlayer(){
  const g=new THREE.Group();
  const shadow=mesh(new THREE.CircleGeometry(.5,16),mat('#25332b'),g,0,.025,0,1.1,1,.7);shadow.rotation.x=-Math.PI/2;
@@ -117,7 +117,7 @@ const decorations=[];let environment=0;
 function populateEnvironment(env){clearGroup(decorGroup);decorations.length=0;environment=env;for(let side of [-1,1])for(let i=0;i<16;i++){const z=-i*7-5,x=side*(7.4+(i%3)*.7);let type=(i+env)%4;if(env!==1&&i%5===2){makeStall(side*6.65,z,side,i+env);continue}if(env===1&&type===0)makeTree(x,z);else if(env===2&&type===1)makeLamp(x,z);else if(type===2){const b=makeBuilding(x,z,side,(i+env)%6);if(env===2){box(b,M.yellow,0,4.25,0,2.5,.08,.1)}}else if(type===0){makeTree(x,z)}else makeLamp(x,z)}}
 populateEnvironment(0);
 const obstaclePool=[],coinPool=[],particlePool=[];
-function makeObstacle(type){let g=new THREE.Group();if(type==='auto')g.add(makeAuto());else if(type==='cow')g.add(makeCow());else if(type==='pothole')g.add(makePothole());else if(type==='banner')g.add(makeBanner());else{box(g,M.yellow,0,.48,0,1.25,.85,.25);for(let x of [-.4,.4])box(g,M.cream,x,.48,.15,.18,.7,.06)}
+function makeObstacle(type){let g=new THREE.Group();if(type==='auto')g.add(makeAuto());else if(type==='cow')g.add(makeCow());else if(type==='pothole')g.add(makePothole());else if(type==='banner')g.add(makeBanner());else{mesh(new THREE.CapsuleGeometry(.5,.35,4,8),M.yellow,g,0,.48,0,1.25,.8,.4);for(let x of [-.4,.4])mesh(new THREE.CapsuleGeometry(.07,.28,3,6),M.cream,g,x,.48,.18,1,1,.8)}
  const warning=new THREE.Group();warning.position.set(0,type==='pothole'?1.85:2.25,0);g.add(warning);
  box(warning,M.cream,0,-.36,0,.09,.62,.09);box(warning,mat('#fff0a6'),0,.08,0,.72,.62,.12);box(warning,mat('#d72f26'),0,.08,.075,.48,.09,.04);ball(warning,mat('#ffdf37',.3),0,.55,0,.17);
  g.userData.warning=warning;g.scale.setScalar(1.22);g.visible=false;obstacleGroup.add(g);return {g,type,z:-60,lane:1,active:false,hit:false}}
