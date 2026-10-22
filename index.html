@@ -32,24 +32,24 @@ const $=id=>document.getElementById(id),canvas=$('scene');
 let renderer,scene,camera,clock,player,worldRoot,roadGroup,decorGroup,obstacleGroup,coinGroup,particleGroup;
 try{
 renderer=new THREE.WebGLRenderer({canvas,antialias:false,alpha:false,powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.35));renderer.setSize(innerWidth,innerHeight,false);
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.45));renderer.setSize(innerWidth,innerHeight,false);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
 scene=new THREE.Scene();scene.background=new THREE.Color('#8bd5ed');scene.fog=new THREE.Fog('#b8e3dc',30,105);
 camera=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,160);camera.position.set(0,5.4,10.5);camera.lookAt(0,1,-8);
 clock=new THREE.Clock();worldRoot=new THREE.Group();scene.add(worldRoot);
-const hemi=new THREE.HemisphereLight(0xe2f7ff,0x7a5b3c,2.0);scene.add(hemi);
-const sun=new THREE.DirectionalLight(0xffe0a6,2.1);sun.position.set(-8,15,8);scene.add(sun);
+const hemi=new THREE.HemisphereLight(0xe2f7ff,0x7a5b3c,1.35);scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xffe0a6,2.5);sun.position.set(-8,15,8);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-18;sun.shadow.camera.right=18;sun.shadow.camera.top=22;sun.shadow.camera.bottom=-22;sun.shadow.bias=-.0005;scene.add(sun);
 roadGroup=new THREE.Group();decorGroup=new THREE.Group();obstacleGroup=new THREE.Group();coinGroup=new THREE.Group();particleGroup=new THREE.Group();worldRoot.add(roadGroup,decorGroup,obstacleGroup,coinGroup,particleGroup);
 }catch(e){$('error').style.display='flex';throw e}
 const mat=(color,roughness=.85,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
-const M={road:mat('#50595a'),edge:mat('#d6bd8b'),lane:mat('#fff0b5'),side:mat('#d9bd8c'),cream:mat('#f6e8c7'),dark:mat('#293438'),green:mat('#218464'),red:mat('#d95036'),yellow:mat('#ffc735'),blue:mat('#79c9e8'),leaf:mat('#398957'),wood:mat('#805638'),white:mat('#fff9e7'),gold:mat('#ffd447',.35,.15),glass:new THREE.MeshStandardMaterial({color:'#a8e8f1',roughness:.25,metalness:.05}),skin:mat('#bd7a50'),shirt:mat('#e85d3c'),pants:mat('#203449')};
-const boxGeo=new THREE.BoxGeometry(1,1,1),sphereGeo=new THREE.SphereGeometry(1,8,6),cylGeo=new THREE.CylinderGeometry(.5,.5,1,8);
-function mesh(geo,material,parent,x=0,y=0,z=0,sx=1,sy=1,sz=1){const o=new THREE.Mesh(geo,material);o.position.set(x,y,z);o.scale.set(sx,sy,sz);parent.add(o);return o}
+const M={road:mat('#3c4548',.98),edge:mat('#b7a58a'),lane:mat('#e8dfc7'),side:mat('#bca98d'),cream:mat('#f6e8c7'),dark:mat('#293438'),green:mat('#218464'),red:mat('#d95036'),yellow:mat('#ffc735'),blue:mat('#79c9e8'),leaf:mat('#398957'),wood:mat('#805638'),white:mat('#fff9e7'),gold:mat('#ffd447',.35,.15),glass:new THREE.MeshStandardMaterial({color:'#a8e8f1',roughness:.25,metalness:.05}),skin:mat('#bd7a50'),shirt:mat('#e85d3c'),pants:mat('#203449')};
+const boxGeo=new THREE.BoxGeometry(1,1,1),sphereGeo=new THREE.SphereGeometry(1,12,8),cylGeo=new THREE.CylinderGeometry(.5,.5,1,12);
+function mesh(geo,material,parent,x=0,y=0,z=0,sx=1,sy=1,sz=1){const o=new THREE.Mesh(geo,material);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
 function box(parent,m,x,y,z,sx,sy,sz){return mesh(boxGeo,m,parent,x,y,z,sx,sy,sz)}
 function ball(parent,m,x,y,z,s){return mesh(sphereGeo,m,parent,x,y,z,s,s,s)}
 function cylinder(parent,m,x,y,z,r,h){return mesh(cylGeo,m,parent,x,y,z,r,h,r)}
 function clearGroup(g){while(g.children.length){const o=g.children[0];g.remove(o);if(o.geometry&&o.geometry!==boxGeo&&o.geometry!==sphereGeo&&o.geometry!==cylGeo)o.geometry.dispose();if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms)if(!Object.values(M).includes(m))m.dispose()}}}
-function makeBuilding(x,z,side,kind){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.025};decorGroup.add(g);const colors=['#d86d4a','#e6a35c','#9a6458','#e8cc8a','#6ba18c','#d6a4a0'];const wall=mat(colors[kind%colors.length]);mesh(new THREE.CapsuleGeometry(1,1.45,4,8),wall,g,0,2,0,1.65,1.2,1.05);mesh(new THREE.CapsuleGeometry(1,.25,3,8),mat('#73453b'),g,0,3.72,0,1.82,.62,1.18);for(let wx of [-.9,.9]){box(g,M.dark,wx,2.25,1.12,.48,.85,.08);box(g,mat('#4a382f'),wx,1.77,1.16,.55,.08,.1)}box(g,mat(kind%2?'#c44832':'#20795f'),0,1.35,1.18,1.65,.42,.16);box(g,M.cream,0,1.35,1.28,1.3,.2,.04);if(kind%3===0){box(g,M.wood,side*.3,.7,1.35,.18,1.2,.18);cylinder(g,M.red,-.45,.9,1.3,.13,.5)}return g}
+function makeBuilding(x,z,side,kind){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.025};decorGroup.add(g);const colors=['#d86d4a','#e6a35c','#9a6458','#e8cc8a','#6ba18c','#d6a4a0'];const wall=mat(colors[kind%colors.length]);mesh(new THREE.CapsuleGeometry(1,1.45,4,8),wall,g,0,2,0,1.65,1.2,1.05);mesh(new THREE.CapsuleGeometry(1,.25,3,8),mat('#73453b'),g,0,3.72,0,1.82,.62,1.18);for(let wx of [-.9,.9]){mesh(new THREE.BoxGeometry(.48,.85,.08),M.dark,g,wx,2.25,1.12);box(g,mat('#4a382f'),wx,1.77,1.16,.55,.08,.1);box(g,mat('#d9b878'),wx,2.25,1.17,.035,.88,.04);box(g,mat('#d9b878'),wx,2.25,1.17,.52,.035,.04)}box(g,mat(kind%2?'#c44832':'#20795f'),0,1.35,1.18,1.65,.42,.16);box(g,M.cream,0,1.35,1.28,1.3,.2,.04);if(kind%3===0){box(g,M.wood,side*.3,.7,1.35,.18,1.2,.18);cylinder(g,M.red,-.45,.9,1.3,.13,.5)}return g}
 function makeTree(x,z){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.045};decorGroup.add(g);cylinder(g,M.wood,0,.9,0,.14,1.8);ball(g,M.leaf,0,2.05,0,.85);ball(g,mat('#2f7e4b'),-.48,1.9,.05,.55);ball(g,mat('#4c9a58'),.45,1.9,-.08,.52);return g}
 function makeLamp(x,z){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.018};decorGroup.add(g);cylinder(g,M.dark,0,1.5,0,.055,3);box(g,M.dark,.28,2.9,0,.6,.06,.06);ball(g,M.yellow,.55,2.82,0,.12);return g}
 function makeStall(x,z,side,kind){
@@ -69,8 +69,8 @@ function makeCow(parent){const g=new THREE.Group();ball(g,M.cream,0,.68,0,.58);g
 function makePothole(parent){const g=new THREE.Group();
  // High-contrast hole plus a floating warning beacon visible from far away.
  cylinder(g,mat('#11191b'),0,.075,0,.62,.14);
- const rim=mesh(new THREE.TorusGeometry(.51,.12,6,16),mat('#ffe14a'),g,0,.16,0);rim.rotation.x=Math.PI/2;
- const inner=mesh(new THREE.TorusGeometry(.31,.055,5,14),mat('#f8f0d0'),g,0,.17,0);inner.rotation.x=Math.PI/2;
+ const rim=mesh(new THREE.TorusGeometry(.51,.12,8,20),mat('#c7a947'),g,0,.16,0);rim.rotation.x=Math.PI/2;
+ const inner=mesh(new THREE.TorusGeometry(.31,.055,6,18),mat('#6b7779'),g,0,.17,0);inner.rotation.x=Math.PI/2;
  box(g,mat('#11191b'),0,.18,0,.58,.04,.16);
  const beacon=new THREE.Group();beacon.position.set(0,1.75,0);g.add(beacon);
  const glow=mesh(new THREE.OctahedronGeometry(.32,0),mat('#ffcf32',.35),beacon,0,0,0,1,1.2,.35);
