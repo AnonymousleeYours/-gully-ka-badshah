@@ -102,7 +102,7 @@ const decorations=[];let environment=0;
 function populateEnvironment(env){clearGroup(decorGroup);decorations.length=0;environment=env;for(let side of [-1,1])for(let i=0;i<16;i++){const z=-i*7-5,x=side*(7.4+(i%3)*.7);let type=(i+env)%4;if(env!==1&&i%5===2){makeStall(side*6.65,z,side,i+env);continue}if(env===1&&type===0)makeTree(x,z);else if(env===2&&type===1)makeLamp(x,z);else if(type===2){const b=makeBuilding(x,z,side,(i+env)%6);if(env===2){box(b,M.yellow,0,4.25,0,2.5,.08,.1)}}else if(type===0){makeTree(x,z)}else makeLamp(x,z)}}
 populateEnvironment(0);
 const obstaclePool=[],coinPool=[],particlePool=[];
-function makeObstacle(type){let g=new THREE.Group();if(type==='auto')makeAuto(g);else if(type==='cow')makeCow(g);else if(type==='pothole')makePothole(g);else if(type==='banner')makeBanner(g);else{box(g,M.yellow,0,.48,0,1.25,.85,.25);for(let x of [-.4,.4])box(g,M.cream,x,.48,.15,.18,.7,.06)}
+function makeObstacle(type){let g=new THREE.Group();if(type==='auto')g.add(makeAuto());else if(type==='cow')g.add(makeCow());else if(type==='pothole')g.add(makePothole());else if(type==='banner')g.add(makeBanner());else{box(g,M.yellow,0,.48,0,1.25,.85,.25);for(let x of [-.4,.4])box(g,M.cream,x,.48,.15,.18,.7,.06)}
  const warning=new THREE.Group();warning.position.set(0,type==='pothole'?1.85:2.25,0);g.add(warning);
  box(warning,M.cream,0,-.36,0,.09,.62,.09);box(warning,mat('#fff0a6'),0,.08,0,.72,.62,.12);box(warning,mat('#d72f26'),0,.08,.075,.48,.09,.04);ball(warning,mat('#ffdf37',.3),0,.55,0,.17);
  g.userData.warning=warning;g.scale.setScalar(1.22);g.visible=false;obstacleGroup.add(g);return {g,type,z:-60,lane:1,active:false,hit:false}}
