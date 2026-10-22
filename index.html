@@ -208,6 +208,7 @@ function draw(){ctx.save();if(shake>0)ctx.translate(rnd(-shake,shake),rnd(-shake
  ctx.restore()}
 function frame(now){let dt=Math.min(.05,(now-last)/1000||0);last=now;if(state==='playing')update(dt);else{world+=dt*.2;for(let p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt}particles=particles.filter(p=>p.life>0)}draw();requestAnimationFrame(frame)}
 requestAnimationFrame(frame);
+document.addEventListener('visibilitychange',()=>{last=performance.now();if(document.hidden&&state==='playing')state='paused'});
 })();
 </script>
 <script>
