@@ -72,6 +72,26 @@ function makeStall(x,z,side,kind){
 }
 function makeAuto(parent){const g=new THREE.Group();mesh(new THREE.CapsuleGeometry(.62,.52,4,8),M.yellow,g,0,.72,0,1.18,.78,1.18);mesh(new THREE.CapsuleGeometry(.48,.32,4,8),M.green,g,0,1.18,-.05,1.08,.8,.98);mesh(new THREE.CapsuleGeometry(.16,.12,3,8),M.glass,g,-.3,1.22,.43,1,.9,.25);mesh(new THREE.CapsuleGeometry(.16,.12,3,8),M.glass,g,.3,1.22,.43,1,.9,.25);mesh(new THREE.CapsuleGeometry(.08,.45,3,8),M.cream,g,0,.94,.65,1,.35,.15);for(const x of [-.55,.55])for(const z of [-.48,.48]){cylinder(g,M.dark,x,.28,z,.2,.16).rotation.z=Math.PI/2;cylinder(g,mat('#929a9b'),x,.28,z,.1,.17).rotation.z=Math.PI/2}return g}
 function makeCow(parent){const g=new THREE.Group();ball(g,M.cream,0,.68,0,.58);g.scale.set(1.15,1,1);ball(g,mat('#8b5a43'),-.25,.85,.43,.2);ball(g,M.cream,.32,.93,.15,.35);ball(g,M.cream,.55,.96,.15,.12);ball(g,M.dark,.42,1.03,.44,.045);for(const x of [-.32,0,.3])box(g,M.wood,x,.27,0,.12,.52,.12);return g}
+function makePedestrian(kind='schoolboy'){
+ const g=new THREE.Group();const skin=mat(kind==='uncle'?'#9d603e':'#bd7a50'),hair=mat('#293438');
+ let shirt=M.blue,pants=M.pants||mat('#203449');
+ if(kind==='police'){shirt=mat('#b9a06d');pants=mat('#544b37')}
+ if(kind==='schoolgirl'){shirt=mat('#f4f0dc');pants=mat('#273e78')}
+ if(kind==='uncle'){shirt=mat('#e8c987');pants=mat('#f0e7d4')}
+ if(kind==='schoolboy'){shirt=mat('#f4f0dc');pants=mat('#253b72')}
+ mesh(new THREE.CapsuleGeometry(.22,.42,4,8),shirt,g,0,.88,0,1,1,.82);
+ ball(g,skin,0,1.34,0,.2);ball(g,hair,0,1.43,-.025,.19);
+ ball(g,M.cream,-.065,1.35,.17,.022);ball(g,M.cream,.065,1.35,.17,.022);ball(g,M.dark,-.062,1.35,.19,.012);ball(g,M.dark,.068,1.35,.19,.012);
+ if(kind==='police'){cylinder(g,mat('#6f5731'),0,1.57,0,.24,.09);box(g,M.gold,0,1.62,.015,.12,.05,.03);box(g,mat('#6f5731'),0,1.51,0,.42,.045,.36)}
+ if(kind==='schoolgirl'){mesh(new THREE.CapsuleGeometry(.24,.22,4,8),mat('#273e78'),g,0,.62,0,1.05,.9,.9);mesh(new THREE.CapsuleGeometry(.035,.27,3,6),mat('#c94338'),g,.12,1.03,.02).rotation.z=-.4}
+ if(kind==='uncle'){ball(g,hair,-.12,1.36,.06,.07);ball(g,hair,.12,1.36,.06,.07);mesh(new THREE.TorusGeometry(.105,.018,5,12),M.dark,g,-.08,1.35,.18);mesh(new THREE.TorusGeometry(.105,.018,5,12),M.dark,g,.08,1.35,.18);box(g,M.dark,0,1.35,.18,.04,.02,.02)}
+ for(const x of [-.11,.11]){mesh(new THREE.CapsuleGeometry(.07,.28,3,6),pants,g,x,.34,0);mesh(new THREE.CapsuleGeometry(.085,.13,3,6),M.dark,g,x,.12,.04)}
+ for(const x of [-1,1]){mesh(new THREE.CapsuleGeometry(.06,.24,3,6),shirt,g,x*.27,.9,0);ball(g,skin,x*.27,.72,.02,.065)}
+ return g
+}
+function makeCrate(){const g=new THREE.Group(),wood=mat('#986039'),dark=mat('#543622'),light=mat('#c18a51');box(g,wood,0,.48,0,1.05,.95,.9);for(const y of [.08,.86])box(g,light,0,y,.47,1.05,.09,.06);for(const x of [-.46,.46])box(g,light,x,.48,.48,.09,.78,.06);const a=box(g,light,0,.48,.52,.09,.78,.04);a.rotation.z=.75;const b=box(g,light,0,.48,.525,.09,.78,.04);b.rotation.z=-.75;box(g,dark,0,.48,-.47,.12,.9,.04);return g}
+function makePipe(){const g=new THREE.Group();const pipe=mesh(new THREE.CylinderGeometry(.34,.34,1.3,16,1,true),mat('#b9b8ad'),g,0,.38,0);pipe.rotation.z=Math.PI/2;const a=mesh(new THREE.TorusGeometry(.34,.07,8,16),mat('#777c7c'),g,-.58,.38,0);a.rotation.y=Math.PI/2;const b=mesh(new THREE.TorusGeometry(.34,.07,8,16),mat('#777c7c'),g,.58,.38,0);b.rotation.y=Math.PI/2;return g}
+
 function makeDog(parent){const g=new THREE.Group();const fur=mat('#c58a50'),cream=mat('#f0d8ae'),ear=mat('#6f4937');mesh(new THREE.CapsuleGeometry(.34,.42,4,8),fur,g,0,.48,0,1.15,.85,1.25);ball(g,fur,0,.86,.42,.31);ball(g,cream,0,.77,.66,.19);ball(g,M.dark,-.11,.91,.66,.045);ball(g,M.dark,.11,.91,.66,.045);ball(g,ear,-.23,1.02,.34,.14);ball(g,ear,.23,1.02,.34,.14);ball(g,M.dark,0,.78,.82,.055);for(const x of [-.22,.22])for(const z of [-.22,.22])mesh(new THREE.CapsuleGeometry(.065,.2,3,6),fur,g,x,.2,z);const tail=mesh(new THREE.CapsuleGeometry(.055,.22,3,6),fur,g,-.05,.65,-.48);tail.rotation.x=-.7;return g}
 function makePothole(parent){const g=new THREE.Group();
  // High-contrast hole plus a floating warning beacon visible from far away.
@@ -121,15 +141,15 @@ const laneX=[-2.05,0,2.05],LANE_WIDTH=4.8,ROAD_LEN=24,roadSegments=[];
 function buildRoad(){for(let i=0;i<6;i++){const g=new THREE.Group();g.position.z=-i*ROAD_LEN;roadGroup.add(g);box(g,M.road,0,-.12,-ROAD_LEN/2,10,.24,ROAD_LEN);box(g,M.side,-5.7,-.08,-ROAD_LEN/2,1.5,.18,ROAD_LEN);box(g,M.side,5.7,-.08,-ROAD_LEN/2,1.5,.18,ROAD_LEN);for(let z=-ROAD_LEN+2;z<0;z+=4){for(let x of [-1.02,1.02])box(g,M.lane,x,.015,z,.055,.025,1.6)}roadSegments.push(g)}}
 buildRoad();
 const decorations=[];let environment=0;
-function populateEnvironment(env){clearGroup(decorGroup);decorations.length=0;environment=env;for(let side of [-1,1])for(let i=0;i<16;i++){const z=-i*7-5,x=side*(7.4+(i%3)*.7);let type=(i+env)%4;if(env!==1&&i%5===2){makeStall(side*6.65,z,side,i+env);continue}if(env===1&&type===0)makeTree(x,z);else if(env===2&&type===1)makeLamp(x,z);else if(type===2){const b=makeBuilding(x,z,side,(i+env)%6);if(env===2){box(b,M.yellow,0,4.25,0,2.5,.08,.1)}}else if(type===0){makeTree(x,z)}else makeLamp(x,z)}}
+function populateEnvironment(env){clearGroup(decorGroup);decorations.length=0;environment=env;for(let side of [-1,1])for(let i=0;i<16;i++){const z=-i*7-5,x=side*(7.4+(i%3)*.7);let type=(i+env)%4;if(env!==1&&i%5===2){makeStall(side*6.65,z,side,i+env);continue}if(i%7===3){const p=makePedestrian(['police','schoolboy','schoolgirl','uncle'][(i+env)%4]);p.position.set(side*6.85,0,z);p.rotation.y=side<0?Math.PI:0;p.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.025};decorGroup.add(p);continue}if(env===1&&type===0)makeTree(x,z);else if(env===2&&type===1)makeLamp(x,z);else if(type===2){const b=makeBuilding(x,z,side,(i+env)%6);if(env===2){box(b,M.yellow,0,4.25,0,2.5,.08,.1)}}else if(type===0){makeTree(x,z)}else makeLamp(x,z)}}
 populateEnvironment(0);
 const obstaclePool=[],coinPool=[],particlePool=[];
-function makeObstacle(type){let g=new THREE.Group();if(type==='auto')g.add(makeAuto());else if(type==='cow')g.add(makeCow());else if(type==='dog')g.add(makeDog());else if(type==='pothole')g.add(makePothole());else if(type==='banner')g.add(makeBanner());else{mesh(new THREE.CapsuleGeometry(.5,.35,4,8),M.yellow,g,0,.48,0,1.25,.8,.4);for(let x of [-.4,.4])mesh(new THREE.CapsuleGeometry(.07,.28,3,6),M.cream,g,x,.48,.18,1,1,.8)}
+function makeObstacle(type){let g=new THREE.Group();if(type==='auto')g.add(makeAuto());else if(type==='cow')g.add(makeCow());else if(type==='dog')g.add(makeDog());else if(type==='crate')g.add(makeCrate());else if(type==='pipe')g.add(makePipe());else if(type==='pothole')g.add(makePothole());else if(type==='banner')g.add(makeBanner());else{mesh(new THREE.CapsuleGeometry(.5,.35,4,8),M.yellow,g,0,.48,0,1.25,.8,.4);for(let x of [-.4,.4])mesh(new THREE.CapsuleGeometry(.07,.28,3,6),M.cream,g,x,.48,.18,1,1,.8)}
  const warning=new THREE.Group();warning.position.set(0,type==='pothole'?1.85:2.25,0);g.add(warning);
  box(warning,M.cream,0,-.36,0,.09,.62,.09);box(warning,mat('#fff0a6'),0,.08,0,.72,.62,.12);box(warning,mat('#d72f26'),0,.08,.075,.48,.09,.04);ball(warning,mat('#ffdf37',.3),0,.55,0,.17);
  g.userData.warning=warning;g.scale.setScalar(1.22);g.visible=false;obstacleGroup.add(g);return {g,type,z:-60,lane:1,active:false,hit:false}}
 function makeCoin(){const g=new THREE.Group();const coin=mesh(new THREE.CylinderGeometry(.27,.27,.08,12),M.gold,g);coin.rotation.z=Math.PI/2;const inner=mesh(new THREE.TorusGeometry(.14,.025,4,10),M.cream,g,0,0,.05);g.visible=false;coinGroup.add(g);return {g,z:-50,lane:1,active:false,phase:Math.random()*6}}
-for(let i=0;i<30;i++)obstaclePool.push(makeObstacle(['auto','cow','pothole','banner','barrier','dog'][i%6]));for(let i=0;i<42;i++)coinPool.push(makeCoin());const magnetPool=[];for(let i=0;i<3;i++){const g=new THREE.Group();const red=mat("#ff4d4d"),blue=mat("#46bfff"),silver=mat("#f4f5f7");box(g,red,-.2,.25,0,.18,.58,.18);box(g,blue,.2,.25,0,.18,.58,.18);box(g,silver,0,-.02,0,.58,.16,.18);g.visible=false;coinGroup.add(g);magnetPool.push({g,z:-50,lane:1,active:false})}
+for(let i=0;i<36;i++)obstaclePool.push(makeObstacle(['auto','cow','pothole','banner','barrier','dog','crate','pipe'][i%8]));for(let i=0;i<42;i++)coinPool.push(makeCoin());const magnetPool=[];for(let i=0;i<3;i++){const g=new THREE.Group();const red=mat("#ff4d4d"),blue=mat("#46bfff"),silver=mat("#f4f5f7");box(g,red,-.2,.25,0,.18,.58,.18);box(g,blue,.2,.25,0,.18,.58,.18);box(g,silver,0,-.02,0,.58,.16,.18);g.visible=false;coinGroup.add(g);magnetPool.push({g,z:-50,lane:1,active:false})}
 const particles=[];
 function burst(x,y,z,color,count=8){for(let i=0;i<count;i++){const m=mesh(sphereGeo,mat(color),particleGroup,x,y,z,.045,.045,.045);particles.push({m,vx:(Math.random()-.5)*3,vy:Math.random()*3,vz:(Math.random()-.5)*2,life:.45})}}
 let state='menu',lane=0,targetLane=0,jumpY=0,jumpV=0,slide=0,chai=0,magnet=0,invuln=0,elapsed=0,distance=0,score=0,coins=0,best=0,speed=10,spawnTimer=1.15,coinTimer=.5,magnetTimer=8,shake=0,worldTime=0,environmentTimer=0,soundOn=true,audioCtx=null,lastHud=0,toastTimer;
