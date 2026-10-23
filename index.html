@@ -283,12 +283,15 @@ function makeDog(parent){
  return g
 }
 function makePothole(parent){const g=new THREE.Group();
- // High-contrast hole plus a floating warning beacon visible from far away.
- cylinder(g,mat('#11191b'),0,.075,0,.62,.14);
- const rim=mesh(new THREE.TorusGeometry(.51,.12,8,20),mat('#c7a947'),g,0,.16,0);rim.rotation.x=Math.PI/2;
- const inner=mesh(new THREE.TorusGeometry(.31,.055,6,18),mat('#6b7779'),g,0,.17,0);inner.rotation.x=Math.PI/2;
- const chipMat=mat('#77766a');for(let i=0;i<9;i++){const a=i*Math.PI*2/9;const chip=box(g,chipMat,Math.cos(a)*.53,.12,Math.sin(a)*.53,.15,.055,.07);chip.rotation.y=-a;chip.rotation.z=(i%2?.16:-.16)}
- box(g,mat('#11191b'),0,.18,0,.58,.04,.16);
+ // Flat asphalt break: ragged, textured layers sit nearly level with the road.
+ function ragged(rx,rz,count,seed){const shape=new THREE.Shape();let n=seed;const rnd=()=>{n=(n*1664525+1013904223)>>>0;return n/4294967296};for(let i=0;i<count;i++){const a=i/count*Math.PI*2,r=.84+rnd()*.32,x=Math.cos(a)*rx*r,y=Math.sin(a)*rz*r;if(i===0)shape.moveTo(x,y);else shape.lineTo(x,y)}shape.closePath();return shape}
+ function flat(shape,material,y){const layer=mesh(new THREE.ShapeGeometry(shape),material,g,0,y,0);layer.rotation.x=-Math.PI/2;return layer}
+ const wornEdge=M.road.clone();wornEdge.color.set('#a1a095');wornEdge.roughness=1;wornEdge.metalness=0;
+ const brokenAsphalt=M.road.clone();brokenAsphalt.color.set('#666b66');brokenAsphalt.roughness=1;brokenAsphalt.metalness=0;
+ const recess=M.road.clone();recess.color.set('#252b29');recess.roughness=1;recess.metalness=0;
+ flat(ragged(.72,.44,15,37),wornEdge,.008);
+ flat(ragged(.59,.35,13,91),brokenAsphalt,.012);
+ flat(ragged(.45,.265,11,163),recess,.016);
  return g}
 function makeBanner(parent){
  const g=new THREE.Group(),pole=mat('#755538',.9),cloth=mat('#c83f32',.95);
