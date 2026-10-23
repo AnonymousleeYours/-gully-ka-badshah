@@ -1,45 +1,23 @@
-# Gully Ka Badshah 🛺
+# Gully Ka Badshah
 
-A desi endless runner game with a behind-the-player pseudo-3D perspective. Runs on Android and Windows browsers, supports touch and keyboard, and saves the best score locally.
-
-## Features
-- Three-lane endless runner
-- Auto-rickshaws, cows, potholes, barriers, bicycles and wedding banners
-- Coins and chai boost
-- Keyboard and touchscreen controls
-- Local high-score saving
-- PWA manifest and service worker for offline caching after the first visit
-- No external game libraries, fonts, image CDNs, or APIs
+A mobile-first Three.js endless runner with procedural street scenery, an articulated player, three lanes, hazards, coins, timed power-ups, touch and keyboard input, persistent best score, and pause/restart/game-over flows. The PWA manifest and icon are retained from the existing GitHub project.
 
 ## Run locally
-Open `index.html` in a modern browser. The game works as a local HTML file. Service-worker/PWA installation requires HTTPS or localhost.
 
-## Publish as a website
-This repository includes a GitHub Actions workflow at `.github/workflows/pages.yml`.
+Serve this folder over HTTP so the browser can load the JavaScript module and Three.js import map:
 
-1. Create a new **public** GitHub repository named `gully-ka-badshah`.
-2. Upload all files from this folder, including the hidden `.github` folder, to the repository's `main` branch.
-3. In GitHub, open **Settings → Pages** and ensure publishing via **GitHub Actions** is selected if prompted.
-4. Wait for the Actions workflow to finish. Your game will be available at:
-   `https://YOUR-GITHUB-USERNAME.github.io/gully-ka-badshah/`
-
-## Embed the game in Framer
-After GitHub Pages is live:
-1. Add an **Embed** component to your Framer page.
-2. Use an iframe with the published URL. Example:
-
-```html
-<iframe
-  src="https://YOUR-GITHUB-USERNAME.github.io/gully-ka-badshah/"
-  title="Gully Ka Badshah"
-  width="100%"
-  height="720"
-  style="border:0;border-radius:16px;overflow:hidden"
-  allow="fullscreen"
-></iframe>
+```sh
+python -m http.server 8000
 ```
 
-Use your actual published GitHub Pages URL. Set the Framer embed to a responsive width and a height suitable for mobile and desktop.
+Then open `http://localhost:8000`. Three.js 0.170.0 is pinned in the import map and loaded from jsDelivr; Google Fonts are also loaded by the stylesheet. Gameplay models and effects are generated locally in code, so no model or texture download is required. The game needs an internet connection on first load because Three.js is hosted by the CDN.
 
-## Offline note
-The game code itself is self-contained. The PWA service worker caches the game shell when the player first opens it over HTTPS. Offline play works on the same browser/device after that successful first visit; an embedded Framer page itself may still need internet, while a separately installed PWA can launch from its cached files.
+## Controls
+
+- Swipe left/right or use **←/→** and **A/D** to change lanes.
+- Swipe up or use **↑**, **W**, or **Space** to jump.
+- Swipe down or use **↓** or **S** to slide.
+- Use **P** or **Escape** to pause.
+
+The game stores the best score in browser local storage. Use the in-game sound toggle to enable or mute synthesized effects. The service worker caches the local app shell for repeat visits; Three.js itself is not bundled locally, so offline startup is not guaranteed.
+

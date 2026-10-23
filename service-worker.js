@@ -1,9 +1,11 @@
-const CACHE_NAME = "gully-ka-badshah-v5";
+const CACHE_NAME = "gully-ka-badshah-v6";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
-  "./icon.svg"
+  "./icon.svg",
+  "./styles.css",
+  "./src/main.js"
 ];
 
 self.addEventListener("install", (event) => {
@@ -27,7 +29,6 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   const isAppDocument = url.origin === self.location.origin &&
     (url.pathname.endsWith("/") || url.pathname.endsWith("/index.html"));
-  // Network-first HTML prevents stale cached game code from hiding updates.
   if (isAppDocument) {
     event.respondWith(
       fetch(event.request).then((response) => {
@@ -49,7 +50,8 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         }
         return response;
-      }).catch(() => caches.match("./index.html"))
+      }).catch(() => caches.match("./index.html"));
     })
   );
 });
+
