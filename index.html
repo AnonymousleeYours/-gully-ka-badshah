@@ -85,25 +85,69 @@ function makeStall(x,z,side,kind){
  return g
 }
 function makeAuto(parent){
- const g=new THREE.Group(),yellow=mat('#e9a91c',.68),green=mat('#087a4b',.62),rubber=mat('#202526',.98),chrome=mat('#aeb8b7',.32,.55),glass=mat('#8bc7d0',.2,.12),lamp=mat('#fff0b0',.25);
- yellow.map=paintedMetalTexture;green.map=paintedMetalTexture;yellow.needsUpdate=green.needsUpdate=true;rubber.map=rubberTexture;rubber.needsUpdate=true;
- mesh(new THREE.CapsuleGeometry(.62,.52,5,12),yellow,g,0,.68,0,1.2,.72,1.22);
- mesh(new THREE.CapsuleGeometry(.48,.34,5,12),green,g,0,1.14,-.05,1.08,.82,1.02);
- box(g,chrome,0,1.27,.43,1.03,.47,.055);box(g,glass,0,1.28,.47,.91,.36,.035);
- box(g,green,-.49,1.26,.45,.07,.48,.08);box(g,green,.49,1.26,.45,.07,.48,.08);
- for(const x of [-.43,.43]){ball(g,lamp,x,.78,.69,.105);ball(g,mat('#f58a25'),x*1.35,.72,.66,.045)}
- box(g,chrome,0,.58,.72,1.18,.09,.08);box(g,rubber,0,.69,.73,.42,.11,.035);
- for(let j=0;j<5;j++)box(g,mat('#323a39'),-.15+j*.075,.69,.755,.025,.07,.018);
- for(const x of [-.65,.65]){box(g,green,x,1.25,.17,.08,.05,.35);ball(g,chrome,x*1.13,1.3,.28,.07)}
- mesh(new THREE.CapsuleGeometry(.48,.09,3,10),green,g,0,1.43,-.08,1.12,.45,1.08);box(g,mat('#45382d'),0,.95,-.35,.7,.16,.25);
- for(const [x,z] of [[-.58,.35],[.58,.35],[0,-.52]]){cylinder(g,rubber,x,.28,z,.22,.16).rotation.z=Math.PI/2;cylinder(g,chrome,x,.28,z,.115,.175).rotation.z=Math.PI/2;cylinder(g,mat('#5b6666',.4,.5),x,.28,z,.045,.18).rotation.z=Math.PI/2}
- box(g,mat('#f4ead1'),0,.52,.79,.34,.09,.025);
- // Windscreen wiper, registration plate and passenger step.
- box(g,mat('#263537'),0,1.09,.50,.62,.025,.025);box(g,mat('#f3e6c7'),0,.47,.825,.3,.07,.025);
- for(const x of [-.31,.31]){box(g,chrome,x,1.19,.505,.025,.3,.018);box(g,green,x*1.7,.89,.34,.18,.035,.16)}
- box(g,mat('#2b3838'),0,.35,-.56,.68,.07,.16);return g
+ const g=new THREE.Group();
+ const yellow=mat('#e3a51c',.72),green=mat('#08764a',.62),rubber=mat('#202424',.98),chrome=mat('#aeb8b7',.3,.5),glass=mat('#8bc7d0',.22,.08),lamp=mat('#fff0b0',.24),black=mat('#202a2c');
+ yellow.map=paintedMetalTexture;green.map=paintedMetalTexture;rubber.map=rubberTexture;yellow.needsUpdate=green.needsUpdate=rubber.needsUpdate=true;
+ // Boxier three-wheeler body, with a distinct engine bonnet and passenger cabin rather than a capsule-shaped blob.
+ box(g,yellow,0,.57,0,1.12,.62,1.42);
+ box(g,green,0,.98,-.08,1.08,.48,1.02);
+ box(g,yellow,0,.82,.56,1.08,.28,.42);
+ box(g,black,0,.94,.79,.82,.24,.035);
+ box(g,glass,0,1.19,.43,.86,.42,.055);
+ box(g,green,-.47,1.17,.43,.07,.46,.08);box(g,green,.47,1.17,.43,.07,.46,.08);
+ // Roof overhang, pillars and rear passenger opening.
+ box(g,green,0,1.48,-.04,1.18,.13,1.05);
+ for(const x of [-.49,.49]){box(g,green,x,1.25,-.12,.065,.45,.07);box(g,green,x,1.12,-.48,.07,.55,.07)}
+ box(g,black,0,1.02,-.56,.76,.28,.045);
+ // Front bumper, grille, number plate, lights and windscreen wiper.
+ box(g,chrome,0,.43,.77,1.18,.1,.09);box(g,black,0,.59,.795,.4,.14,.035);
+ for(let i=0;i<5;i++)box(g,chrome,-.14+i*.07,.59,.82,.018,.1,.018);
+ for(const x of [-.42,.42]){box(g,lamp,x,.75,.79,.19,.14,.06);box(g,mat('#e35c31'),x*1.12,.59,.78,.07,.07,.05)}
+ box(g,mat('#f5ead1'),0,.45,.83,.34,.07,.025);
+ box(g,black,0,1.02,.47,.56,.018,.018);
+ // Side panels and open passenger entrance.
+ for(const x of [-.56,.56]){
+  box(g,green,x,.78,-.02,.055,.48,.72);
+  box(g,yellow,x,.52,-.05,.065,.1,.9);
+  box(g,chrome,x*1.12,.93,.1,.06,.035,.2);
+  const mirror=box(g,black,x*1.23,1.28,.35,.07,.06,.16);mirror.rotation.x=-.18;
+ }
+ // Three properly placed wheels with rubber tyres and metallic hubs.
+ for(const [x,z] of [[-.61,.42],[.61,.42],[0,-.59]]){
+  const tyre=mesh(new THREE.CylinderGeometry(.23,.23,.15,20),rubber,g,x,.28,z);tyre.rotation.z=Math.PI/2;
+  const hub=mesh(new THREE.CylinderGeometry(.125,.125,.165,16),chrome,g,x,.28,z);hub.rotation.z=Math.PI/2;
+  const cap=mesh(new THREE.CylinderGeometry(.045,.045,.17,12),black,g,x,.28,z);cap.rotation.z=Math.PI/2;
+ }
+ // Rear fender, mud flap and step.
+ box(g,black,0,.25,-.67,.45,.18,.07);box(g,chrome,0,.37,-.53,.65,.06,.13);
+ return g
 }
-function makeCow(parent){const g=new THREE.Group();ball(g,M.cream,0,.68,0,.58);g.scale.set(1.15,1,1);ball(g,mat('#8b5a43'),-.25,.85,.43,.2);ball(g,M.cream,.32,.93,.15,.35);ball(g,M.cream,.55,.96,.15,.12);ball(g,M.dark,.42,1.03,.44,.045);for(const x of [-.32,0,.3])box(g,M.wood,x,.27,0,.12,.52,.12);return g}
+function makeCow(parent){
+ const g=new THREE.Group();
+ const hide=mat('#eee5ce',.94),patch=mat('#684a37',.98),hoof=mat('#4c4035'),horn=mat('#d5c49c'),muzzle=mat('#a87967');
+ // A compact Indian zebu/cow silhouette: long torso, sloping shoulders, four legs and a tapered head.
+ mesh(new THREE.SphereGeometry(1,18,12),hide,g,0,.77,-.03,.52,.48,.82);
+ mesh(new THREE.SphereGeometry(1,16,10),hide,g,0,.96,-.43,.36,.39,.39);
+ mesh(new THREE.SphereGeometry(1,16,10),hide,g,0,.91,.51,.29,.32,.35);
+ mesh(new THREE.SphereGeometry(1,14,10),muzzle,g,0,.78,.78,.2,.15,.17);
+ for(const [x,y,z,sx,sy,sz] of [[-.28,.94,.12,.16,.21,.24],[.22,.97,-.28,.19,.22,.23],[-.18,.65,-.25,.12,.13,.2]]){
+  mesh(new THREE.SphereGeometry(1,12,8),patch,g,x,y,z,sx,sy,sz);
+ }
+ // Ears flare out; short curved horns sit above the head.
+ for(const side of [-1,1]){
+  const ear=mesh(new THREE.SphereGeometry(1,12,8),hide,g,side*.31,1.08,.42,.16,.075,.22);ear.rotation.y=side*.35;ear.rotation.z=side*-.2;
+  const h=mesh(new THREE.ConeGeometry(.075,.22,10),horn,g,side*.16,1.29,.48);h.rotation.z=side*-.28;h.rotation.x=.15;
+  mesh(new THREE.SphereGeometry(1,10,8),mat('#252321'),g,side*.115,1.02,.74,.035,.04,.025);
+ }
+ // Four narrow, joint-like legs with dark hooves and a hanging tail.
+ for(const [x,z] of [[-.32,-.49],[.32,-.49],[-.31,.39],[.31,.39]]){
+  const leg=mesh(new THREE.CylinderGeometry(.065,.09,.42,10),hide,g,x,.34,z);leg.rotation.x=(z<0?-.08:.08);
+  mesh(new THREE.CylinderGeometry(.07,.075,.1,10),hoof,g,x,.105,z);
+ }
+ const tail=mesh(new THREE.CylinderGeometry(.025,.04,.45,8),hide,g,-.12,.65,-.77);tail.rotation.x=-.55;
+ ball(g,patch,-.12,.43,-.96,.075);
+ return g
+}
 function makePedestrian(kind='schoolboy'){
  const g=new THREE.Group();const skin=mat(kind==='uncle'?'#9d603e':'#bd7a50'),hair=mat('#293438');
  let shirt=M.blue,pants=M.pants||mat('#203449');
@@ -121,10 +165,46 @@ function makePedestrian(kind='schoolboy'){
  for(const x of [-1,1]){mesh(new THREE.CapsuleGeometry(.06,.24,3,6),shirt,g,x*.27,.9,0);ball(g,skin,x*.27,.72,.02,.065)}
  return g
 }
-function makeCrate(){const g=new THREE.Group(),wood=mat('#986039'),dark=mat('#543622'),light=mat('#c18a51');wood.map=woodTexture;wood.needsUpdate=true;light.map=woodTexture;light.needsUpdate=true;box(g,wood,0,.48,0,1.05,.95,.9);for(const y of [.08,.86])box(g,light,0,y,.47,1.05,.09,.06);for(const x of [-.46,.46])box(g,light,x,.48,.48,.09,.78,.06);const a=box(g,light,0,.48,.52,.09,.78,.04);a.rotation.z=.75;const b=box(g,light,0,.48,.525,.09,.78,.04);b.rotation.z=-.75;box(g,dark,0,.48,-.47,.12,.9,.04);return g}
-function makePipe(){const g=new THREE.Group();const pipe=mesh(new THREE.CylinderGeometry(.34,.34,1.3,16,1,true),mat('#b9b8ad'),g,0,.38,0);pipe.rotation.z=Math.PI/2;const a=mesh(new THREE.TorusGeometry(.34,.07,8,16),mat('#777c7c'),g,-.58,.38,0);a.rotation.y=Math.PI/2;const b=mesh(new THREE.TorusGeometry(.34,.07,8,16),mat('#777c7c'),g,.58,.38,0);b.rotation.y=Math.PI/2;return g}
+function makeCrate(){
+ const g=new THREE.Group(),wood=mat('#956039',.94),dark=mat('#543622',.98),light=mat('#c18a51',.9);wood.map=woodTexture;light.map=woodTexture;wood.needsUpdate=light.needsUpdate=true;
+ box(g,wood,0,.46,0,.94,.9,.84);
+ for(const y of [.08,.84])box(g,light,0,y,.435,1,.085,.055);
+ for(const x of [-.45,.45])box(g,light,x,.46,.435,.08,.78,.06);
+ for(const x of [-.46,.46])box(g,dark,x,.46,-.425,.07,.78,.05);
+ const a=box(g,light,0,.46,.47,.07,.72,.035);a.rotation.z=.72;
+ const b=box(g,light,0,.46,.475,.07,.72,.035);b.rotation.z=-.72;
+ for(const x of [-.35,.35])for(const y of [.18,.74])ball(g,dark,x,y,.475,.025);
+ return g
+}
+function makePipe(){
+ const g=new THREE.Group(),metal=mat('#858d8c',.58,.35),rim=mat('#596160',.45,.45);
+ const pipe=mesh(new THREE.CylinderGeometry(.26,.26,1.28,20,1,true),metal,g,0,.31,0);pipe.rotation.z=Math.PI/2;
+ for(const x of [-.65,.65]){
+  const ring=mesh(new THREE.TorusGeometry(.26,.045,8,20),rim,g,x,.31,0);ring.rotation.y=Math.PI/2;
+  const opening=mesh(new THREE.CircleGeometry(.22,20),mat('#252b2a'),g,x+(x>0?.025:-.025),.31,0);opening.rotation.y=x>0?Math.PI/2:-Math.PI/2;
+ }
+ for(const x of [-.42,.42]){const band=mesh(new THREE.TorusGeometry(.26,.018,6,20),mat('#c0b7a0'),g,x,.31,0);band.rotation.y=Math.PI/2}
+ return g
+}
 
-function makeDog(parent){const g=new THREE.Group();const fur=mat('#c58a50'),cream=mat('#f0d8ae'),ear=mat('#6f4937');mesh(new THREE.CapsuleGeometry(.34,.42,4,8),fur,g,0,.48,0,1.15,.85,1.25);ball(g,fur,0,.86,.42,.31);ball(g,cream,0,.77,.66,.19);ball(g,M.dark,-.11,.91,.66,.045);ball(g,M.dark,.11,.91,.66,.045);ball(g,ear,-.23,1.02,.34,.14);ball(g,ear,.23,1.02,.34,.14);ball(g,M.dark,0,.78,.82,.055);for(const x of [-.22,.22])for(const z of [-.22,.22])mesh(new THREE.CapsuleGeometry(.065,.2,3,6),fur,g,x,.2,z);const tail=mesh(new THREE.CapsuleGeometry(.055,.22,3,6),fur,g,-.05,.65,-.48);tail.rotation.x=-.7;return g}
+function makeDog(parent){
+ const g=new THREE.Group(),fur=mat('#b9824c',.96),cream=mat('#ead7b7',.96),ear=mat('#65432f',.98),nose=mat('#252322');
+ // Lean street-dog proportions, with a long torso, defined shoulders, muzzle and four separate legs.
+ mesh(new THREE.SphereGeometry(1,16,12),fur,g,0,.47,-.02,.34,.31,.58);
+ mesh(new THREE.SphereGeometry(1,14,10),fur,g,0,.68,.34,.25,.27,.3);
+ mesh(new THREE.SphereGeometry(1,12,8),cream,g,0,.58,.58,.16,.13,.22);
+ ball(g,nose,0,.61,.77,.045);
+ for(const x of [-.105,.105]){ball(g,nose,x,.72,.55,.025);ball(g,cream,x-.018,.735,.575,.009)}
+ for(const side of [-1,1]){
+  const e=mesh(new THREE.SphereGeometry(1,12,8),ear,g,side*.18,.84,.28,.09,.17,.07);e.rotation.z=side*.28;
+ }
+ for(const x of [-.22,.22])for(const z of [-.37,.34]){
+  const leg=mesh(new THREE.CapsuleGeometry(.055,.23,3,8),fur,g,x,.22,z);leg.rotation.x=z*.16;
+  mesh(new THREE.SphereGeometry(1,10,8),nose,g,x,.075,z+.035,.065,.045,.09);
+ }
+ const tail=mesh(new THREE.CylinderGeometry(.025,.045,.36,8),fur,g,-.06,.57,-.56);tail.rotation.x=-.75;
+ return g
+}
 function makePothole(parent){const g=new THREE.Group();
  // High-contrast hole plus a floating warning beacon visible from far away.
  cylinder(g,mat('#11191b'),0,.075,0,.62,.14);
@@ -133,7 +213,15 @@ function makePothole(parent){const g=new THREE.Group();
  const chipMat=mat('#77766a');for(let i=0;i<9;i++){const a=i*Math.PI*2/9;const chip=box(g,chipMat,Math.cos(a)*.53,.12,Math.sin(a)*.53,.15,.055,.07);chip.rotation.y=-a;chip.rotation.z=(i%2?.16:-.16)}
  box(g,mat('#11191b'),0,.18,0,.58,.04,.16);
  return g}
-function makeBanner(parent){const g=new THREE.Group();for(const x of [-.55,.55])mesh(new THREE.CapsuleGeometry(.045,.95,3,6),M.wood,g,x,1.15,0);mesh(new THREE.CapsuleGeometry(.22,.72,4,8),M.red,g,0,1.75,0,1.45,.68,.22);return g}
+function makeBanner(parent){
+ const g=new THREE.Group(),pole=mat('#755538',.9),cloth=mat('#c83f32',.95);
+ for(const x of [-.52,.52])cylinder(g,pole,x,1.05,0,.035,1.9);
+ box(g,cloth,0,1.55,0,1.08,.65,.06);
+ box(g,mat('#eacb72'),0,1.55,.04,.83,.42,.025);
+ box(g,mat('#c83f32'),0,1.55,.06,.73,.32,.025);
+ for(const x of [-.42,.42])ball(g,mat('#d8bd7b'),x,1.55,.07,.035);
+ return g
+}
 function makePlayer(){
  const g=new THREE.Group();
  const shadow=mesh(new THREE.CircleGeometry(.5,16),mat('#25332b'),g,0,.025,0,1.1,1,.7);shadow.rotation.x=-Math.PI/2;
