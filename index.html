@@ -63,7 +63,70 @@ function box(parent,m,x,y,z,sx,sy,sz){return mesh(boxGeo,m,parent,x,y,z,sx,sy,sz
 function ball(parent,m,x,y,z,s){return mesh(sphereGeo,m,parent,x,y,z,s,s,s)}
 function cylinder(parent,m,x,y,z,r,h){return mesh(cylGeo,m,parent,x,y,z,r,h,r)}
 function clearGroup(g){while(g.children.length){const o=g.children[0];g.remove(o);if(o.geometry&&o.geometry!==boxGeo&&o.geometry!==sphereGeo&&o.geometry!==cylGeo)o.geometry.dispose();if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms)if(!Object.values(M).includes(m))m.dispose()}}}
-function makeBuilding(x,z,side,kind){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.025};decorGroup.add(g);const colors=['#d86d4a','#e6a35c','#9a6458','#e8cc8a','#6ba18c','#d6a4a0'];const wall=mat(colors[kind%colors.length]);wall.map=concreteTexture;wall.needsUpdate=true;mesh(new THREE.CapsuleGeometry(1,1.45,4,8),wall,g,0,2,0,1.65,1.2,1.05);mesh(new THREE.CapsuleGeometry(1,.25,3,8),mat('#73453b'),g,0,3.72,0,1.82,.62,1.18);box(g,mat('#6b4c3c'),0,3.15,1.08,3.1,.12,.12);box(g,mat('#b9a17d'),0,.82,1.12,3.05,.12,.12);for(let j=0;j<3;j++)box(g,mat('#8e8a7b'),-1.15+j*1.15,.35,1.15,.22,.12,.07);for(let wx of [-.9,.9]){mesh(new THREE.BoxGeometry(.48,.85,.08),M.dark,g,wx,2.25,1.12);box(g,mat('#4a382f'),wx,1.77,1.16,.55,.08,.1);box(g,mat('#d9b878'),wx,2.25,1.17,.035,.88,.04);box(g,mat('#d9b878'),wx,2.25,1.17,.52,.035,.04)}box(g,mat(kind%2?'#c44832':'#20795f'),0,1.35,1.18,1.65,.42,.16);box(g,M.cream,0,1.35,1.28,1.3,.2,.04);if(kind%3===0){box(g,M.wood,side*.3,.7,1.35,.18,1.2,.18);cylinder(g,M.red,-.45,.9,1.3,.13,.5)}return g}
+function makeBuilding(x,z,side,kind){
+ const g=new THREE.Group();g.position.set(x,0,z);decorGroup.add(g);
+ const palettes=[
+  ['#d7a06c','#f0d0a0','#70442d','#8b4734'],
+  ['#d5bfa0','#f0e0c4','#5a4132','#a45a3d'],
+  ['#b9785d','#e5b18b','#49372f','#6c4036'],
+  ['#c6b58b','#e6d5ad','#705239','#765143'],
+  ['#8eaa91','#c5d5b8','#42584a','#5c5142'],
+  ['#d4a0a0','#f0d0c5','#724944','#87564b']
+ ];
+ const p=palettes[kind%6],wall=mat(p[0],.96),trim=mat(p[1],.9),door=mat(p[2],.9),roof=mat(p[3],.95);
+ const glass=new THREE.MeshStandardMaterial({color:'#547b7e',roughness:.34,metalness:.08});
+ wall.map=concreteTexture;wall.needsUpdate=true;
+ // Flat-fronted two-storey Indian street house with squared walls and a defined roofline.
+ box(g,wall,0,1.65,0,3.15,3.3,2.15);
+ box(g,roof,0,3.34,0,3.35,.18,2.32);
+ box(g,trim,0,3.15,1.095,3.22,.12,.09);
+ box(g,trim,0,.15,1.095,3.22,.18,.1);
+ box(g,roof,0,3.52,-.06,3.42,.16,2.4);
+ box(g,trim,0,3.61,0,3.5,.055,2.46);
+ // Recessed upper windows with frames, lintels, glass panes and iron bars.
+ for(const wx of [-.91,.91]){
+  box(g,door,wx,2.42,1.095,.72,1.02,.08);
+  box(g,glass,wx,2.43,1.145,.56,.83,.035);
+  box(g,trim,wx,2.96,1.17,.82,.09,.12);
+  box(g,trim,wx,1.9,1.17,.82,.09,.12);
+  box(g,trim,wx-.37,2.43,1.17,.08,1.14,.12);
+  box(g,trim,wx+.37,2.43,1.17,.08,1.14,.12);
+  box(g,trim,wx,2.43,1.19,.045,.86,.07);
+  for(const dx of [-.15,.15])box(g,door,wx+dx,2.43,1.205,.025,.82,.025);
+  box(g,roof,wx,1.82,1.23,.92,.08,.28);
+ }
+ // Distinct entry door, step, nameplate and small vent grille.
+ const doorX=kind%2===0?0:-.48;
+ box(g,door,doorX,.91,1.105,.7,1.52,.1);
+ box(g,mat('#a98b66'),doorX,.9,1.17,.54,1.34,.035);
+ box(g,trim,doorX-.32,.9,1.2,.055,1.35,.045);
+ box(g,trim,doorX,.9,1.2,.72,.08,.045);
+ box(g,trim,doorX,1.68,1.2,.72,.08,.045);
+ ball(g,mat('#d4b46c',.35,.3),doorX+.2,.88,1.23,.035);
+ box(g,door,1.1,1.25,1.11,.42,.3,.055);
+ box(g,trim,1.1,1.25,1.15,.32,.19,.025);
+ for(let i=0;i<4;i++)box(g,door,.99+i*.075,1.25,1.17,.025,.13,.02);
+ // Exterior electrical conduit, meter box and lamp.
+ box(g,door,-1.38,1.48,1.12,.07,.8,.06);
+ box(g,trim,-1.2,1.12,1.16,.24,.34,.1);
+ box(g,roof,-1.2,1.34,1.18,.28,.06,.12);
+ // One house in each set gets a small striped shop awning.
+ if(kind%3===0){
+  box(g,trim,0,1.93,1.26,1.95,.12,.36);
+  for(let i=0;i<6;i++)box(g,i%2?M.green:M.red,-.81+i*.324,1.79,1.27,.32,.18,.33);
+  box(g,door,0,2.12,1.25,1.45,.28,.08);
+  box(g,trim,0,2.12,1.30,1.28,.15,.025);
+ }
+ // Subtle weathering and patched plaster marks.
+ const stain=mat('#947b61',.99);
+ for(let i=0;i<4;i++){
+  const sx=-1.3+i*.76,sy=.48+(i%2)*.19;
+  box(g,stain,sx,sy,1.085,.035,.22+(i%3)*.08,.018);
+ }
+ // Side wall and ledges visible from the oblique chase camera.
+ box(g,roof,side<0?-1.59:1.59,2.05,0,.09,2.65,2.2);
+ return g
+}
 function makeTree(x,z){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.025};decorGroup.add(g);cylinder(g,M.wood,0,.92,0,.16,1.84);for(let a=0;a<4;a++){const branch=box(g,M.wood,Math.cos(a*1.57)*.18,1.25,Math.sin(a*1.57)*.18,.07,.72,.07);branch.rotation.z=(a%2?-.42:.42)}for(const [x1,y,z1,s,col] of [[0,2.15,0,.72,'#397c3f'],[-.43,1.95,.06,.52,'#2f7040'],[.43,1.96,-.06,.54,'#4a9149'],[0,2.55,-.08,.48,'#4d9650'],[-.2,2.22,.35,.35,'#5a9c4c']])ball(g,mat(col),x1,y,z1,s);return g}
 function makeLamp(x,z){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.018};decorGroup.add(g);cylinder(g,M.dark,0,1.5,0,.055,3);box(g,M.dark,.28,2.9,0,.6,.06,.06);ball(g,M.yellow,.55,2.82,0,.12);return g}
 function makeStall(x,z,side,kind){
