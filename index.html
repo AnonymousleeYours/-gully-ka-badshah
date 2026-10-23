@@ -44,13 +44,17 @@ roadGroup=new THREE.Group();decorGroup=new THREE.Group();obstacleGroup=new THREE
 const mat=(color,roughness=.85,metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
 const M={road:mat('#3c4548',.98),edge:mat('#b7a58a'),lane:mat('#e8dfc7'),side:mat('#bca98d'),cream:mat('#f6e8c7'),dark:mat('#293438'),green:mat('#218464'),red:mat('#d95036'),yellow:mat('#ffc735'),blue:mat('#79c9e8'),leaf:mat('#398957'),wood:mat('#805638'),white:mat('#fff9e7'),gold:mat('#ffd447',.35,.15),glass:new THREE.MeshStandardMaterial({color:'#a8e8f1',roughness:.25,metalness:.05}),skin:mat('#bd7a50'),shirt:mat('#e85d3c'),pants:mat('#203449')};
 const boxGeo=new THREE.BoxGeometry(1,1,1),sphereGeo=new THREE.SphereGeometry(1,12,8),cylGeo=new THREE.CylinderGeometry(.5,.5,1,12);
+// Locally generated asphalt grain adds surface detail without external assets or network requests.
+function makeGrainTexture(base,speckle,seed=17){const canvas=document.createElement('canvas');canvas.width=canvas.height=256;const ctx=canvas.getContext('2d');ctx.fillStyle=base;ctx.fillRect(0,0,256,256);let n=seed;const rnd=()=>{n=(n*1664525+1013904223)>>>0;return n/4294967296};for(let i=0;i<4600;i++){ctx.globalAlpha=.04+rnd()*.2;ctx.fillStyle=speckle;const s=.4+rnd()*1.8;ctx.fillRect(rnd()*256,rnd()*256,s,s)}ctx.globalAlpha=1;const t=new THREE.CanvasTexture(canvas);t.colorSpace=THREE.SRGBColorSpace;t.wrapS=t.wrapT=THREE.RepeatWrapping;t.anisotropy=2;return t}
+const asphaltTexture=makeGrainTexture('#454a49','#d0c9b5',31);asphaltTexture.repeat.set(2,7);M.road.map=asphaltTexture;M.road.color.set('#c4c4c4');M.road.roughness=.97;
+
 function mesh(geo,material,parent,x=0,y=0,z=0,sx=1,sy=1,sz=1){const o=new THREE.Mesh(geo,material);o.position.set(x,y,z);o.scale.set(sx,sy,sz);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
 function box(parent,m,x,y,z,sx,sy,sz){return mesh(boxGeo,m,parent,x,y,z,sx,sy,sz)}
 function ball(parent,m,x,y,z,s){return mesh(sphereGeo,m,parent,x,y,z,s,s,s)}
 function cylinder(parent,m,x,y,z,r,h){return mesh(cylGeo,m,parent,x,y,z,r,h,r)}
 function clearGroup(g){while(g.children.length){const o=g.children[0];g.remove(o);if(o.geometry&&o.geometry!==boxGeo&&o.geometry!==sphereGeo&&o.geometry!==cylGeo)o.geometry.dispose();if(o.material){const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms)if(!Object.values(M).includes(m))m.dispose()}}}
 function makeBuilding(x,z,side,kind){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.025};decorGroup.add(g);const colors=['#d86d4a','#e6a35c','#9a6458','#e8cc8a','#6ba18c','#d6a4a0'];const wall=mat(colors[kind%colors.length]);mesh(new THREE.CapsuleGeometry(1,1.45,4,8),wall,g,0,2,0,1.65,1.2,1.05);mesh(new THREE.CapsuleGeometry(1,.25,3,8),mat('#73453b'),g,0,3.72,0,1.82,.62,1.18);for(let wx of [-.9,.9]){mesh(new THREE.BoxGeometry(.48,.85,.08),M.dark,g,wx,2.25,1.12);box(g,mat('#4a382f'),wx,1.77,1.16,.55,.08,.1);box(g,mat('#d9b878'),wx,2.25,1.17,.035,.88,.04);box(g,mat('#d9b878'),wx,2.25,1.17,.52,.035,.04)}box(g,mat(kind%2?'#c44832':'#20795f'),0,1.35,1.18,1.65,.42,.16);box(g,M.cream,0,1.35,1.28,1.3,.2,.04);if(kind%3===0){box(g,M.wood,side*.3,.7,1.35,.18,1.2,.18);cylinder(g,M.red,-.45,.9,1.3,.13,.5)}return g}
-function makeTree(x,z){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.045};decorGroup.add(g);cylinder(g,M.wood,0,.9,0,.14,1.8);ball(g,M.leaf,0,2.05,0,.85);ball(g,mat('#2f7e4b'),-.48,1.9,.05,.55);ball(g,mat('#4c9a58'),.45,1.9,-.08,.52);return g}
+function makeTree(x,z){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.025};decorGroup.add(g);cylinder(g,M.wood,0,.92,0,.16,1.84);for(let a=0;a<4;a++){const branch=box(g,M.wood,Math.cos(a*1.57)*.18,1.25,Math.sin(a*1.57)*.18,.07,.72,.07);branch.rotation.z=(a%2?-.42:.42)}for(const [x1,y,z1,s,col] of [[0,2.15,0,.72,'#397c3f'],[-.43,1.95,.06,.52,'#2f7040'],[.43,1.96,-.06,.54,'#4a9149'],[0,2.55,-.08,.48,'#4d9650'],[-.2,2.22,.35,.35,'#5a9c4c']])ball(g,mat(col),x1,y,z1,s);return g}
 function makeLamp(x,z){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.018};decorGroup.add(g);cylinder(g,M.dark,0,1.5,0,.055,3);box(g,M.dark,.28,2.9,0,.6,.06,.06);ball(g,M.yellow,.55,2.82,0,.12);return g}
 function makeStall(x,z,side,kind){
  const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.035};decorGroup.add(g);
@@ -70,7 +74,20 @@ function makeStall(x,z,side,kind){
  for(let j=0;j<3;j++){const steam=mesh(new THREE.TorusGeometry(.07,.018,4,8),M.white,g,-.22+j*.22,1.55,.36+j*.015);steam.rotation.x=Math.PI/2;steam.rotation.y=.3}
  return g
 }
-function makeAuto(parent){const g=new THREE.Group();mesh(new THREE.CapsuleGeometry(.62,.52,4,8),M.yellow,g,0,.72,0,1.18,.78,1.18);mesh(new THREE.CapsuleGeometry(.48,.32,4,8),M.green,g,0,1.18,-.05,1.08,.8,.98);mesh(new THREE.CapsuleGeometry(.16,.12,3,8),M.glass,g,-.3,1.22,.43,1,.9,.25);mesh(new THREE.CapsuleGeometry(.16,.12,3,8),M.glass,g,.3,1.22,.43,1,.9,.25);mesh(new THREE.CapsuleGeometry(.08,.45,3,8),M.cream,g,0,.94,.65,1,.35,.15);for(const x of [-.55,.55])for(const z of [-.48,.48]){cylinder(g,M.dark,x,.28,z,.2,.16).rotation.z=Math.PI/2;cylinder(g,mat('#929a9b'),x,.28,z,.1,.17).rotation.z=Math.PI/2}return g}
+function makeAuto(parent){
+ const g=new THREE.Group(),yellow=mat('#e9a91c',.68),green=mat('#087a4b',.62),rubber=mat('#202526',.98),chrome=mat('#aeb8b7',.32,.55),glass=mat('#8bc7d0',.2,.12),lamp=mat('#fff0b0',.25);
+ mesh(new THREE.CapsuleGeometry(.62,.52,5,12),yellow,g,0,.68,0,1.2,.72,1.22);
+ mesh(new THREE.CapsuleGeometry(.48,.34,5,12),green,g,0,1.14,-.05,1.08,.82,1.02);
+ box(g,chrome,0,1.27,.43,1.03,.47,.055);box(g,glass,0,1.28,.47,.91,.36,.035);
+ box(g,green,-.49,1.26,.45,.07,.48,.08);box(g,green,.49,1.26,.45,.07,.48,.08);
+ for(const x of [-.43,.43]){ball(g,lamp,x,.78,.69,.105);ball(g,mat('#f58a25'),x*1.35,.72,.66,.045)}
+ box(g,chrome,0,.58,.72,1.18,.09,.08);box(g,rubber,0,.69,.73,.42,.11,.035);
+ for(let j=0;j<5;j++)box(g,mat('#323a39'),-.15+j*.075,.69,.755,.025,.07,.018);
+ for(const x of [-.65,.65]){box(g,green,x,1.25,.17,.08,.05,.35);ball(g,chrome,x*1.13,1.3,.28,.07)}
+ mesh(new THREE.CapsuleGeometry(.48,.09,3,10),green,g,0,1.43,-.08,1.12,.45,1.08);box(g,mat('#45382d'),0,.95,-.35,.7,.16,.25);
+ for(const [x,z] of [[-.58,.35],[.58,.35],[0,-.52]]){cylinder(g,rubber,x,.28,z,.22,.16).rotation.z=Math.PI/2;cylinder(g,chrome,x,.28,z,.115,.175).rotation.z=Math.PI/2;cylinder(g,mat('#5b6666',.4,.5),x,.28,z,.045,.18).rotation.z=Math.PI/2}
+ box(g,mat('#f4ead1'),0,.52,.79,.34,.09,.025);return g
+}
 function makeCow(parent){const g=new THREE.Group();ball(g,M.cream,0,.68,0,.58);g.scale.set(1.15,1,1);ball(g,mat('#8b5a43'),-.25,.85,.43,.2);ball(g,M.cream,.32,.93,.15,.35);ball(g,M.cream,.55,.96,.15,.12);ball(g,M.dark,.42,1.03,.44,.045);for(const x of [-.32,0,.3])box(g,M.wood,x,.27,0,.12,.52,.12);return g}
 function makePedestrian(kind='schoolboy'){
  const g=new THREE.Group();const skin=mat(kind==='uncle'?'#9d603e':'#bd7a50'),hair=mat('#293438');
