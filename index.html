@@ -134,21 +134,27 @@ function makeUtilityPole(x,z,side){const g=new THREE.Group();g.position.set(x,0,
 function makeLamp(x,z){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.018};decorGroup.add(g);cylinder(g,M.dark,0,1.5,0,.055,3);box(g,M.dark,.28,2.9,0,.6,.06,.06);ball(g,M.yellow,.55,2.82,0,.12);return g}
 function makeUtilitySpan(x,z,side){const g=new THREE.Group();g.position.set(0,0,z);decorGroup.add(g);const px=side*x,pole=mat('#8c8c7f',.95),metal=mat('#555d59',.72,.25);for(const zz of [0,-18]){box(g,pole,px,3.8,zz,.22,7.6,.22);box(g,metal,px,6.55,zz,.95,.12,.16);for(const dx of [-.34,0,.34]){cylinder(g,mat('#b4b7a8'),px+dx,6.72,zz,.055,.22);cylinder(g,metal,px+dx,6.87,zz,.07,.08)}const arm=box(g,metal,px-side*.45,6.3,zz,.95,.08,.09);arm.rotation.z=side*.12;box(g,mat('#e7d8a6',.4),px-side*.88,6.22,zz,.3,.1,.2);box(g,metal,px-side*.16,2.1,zz,.48,.65,.22)}for(const dx of [-.34,0,.34]){const pts=[];for(let i=0;i<=12;i++){const t=i/12;pts.push(new THREE.Vector3(px+dx,6.78-Math.sin(Math.PI*t)*.72,-18*t))}const curve=new THREE.CatmullRomCurve3(pts);mesh(new THREE.TubeGeometry(curve,18,.018,5,false),mat('#242c2b',.8,.1),g,0,0,0)}return g}
 function makeStall(x,z,side,kind){
- const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.035};decorGroup.add(g);
- const canopy=[M.red,M.yellow,M.green][kind%3],counter=[mat('#b85b36'),mat('#317c67'),mat('#bd873b')][kind%3];
- mesh(new THREE.CapsuleGeometry(.38,.42,4,8),M.wood,g,0,.58,0,1.9,1,.95);mesh(new THREE.CapsuleGeometry(.08,.68,3,6),counter,g,0,.88,.08,1.9,.3,1.15);
- for(const sx of [-.68,.68]){box(g,M.wood,sx,1.35,0,.08,1.05,.08);mesh(new THREE.CapsuleGeometry(.12,.35,3,6),canopy,g,sx*.52,1.86,0,2.5,.65,2.4)}
- mesh(new THREE.CapsuleGeometry(.12,.28,3,6),canopy,g,0,1.83,0,2.6,.65,2.4);
- for(let j=0;j<5;j++)box(g,j%2?M.yellow:M.cream,-.6+j*.3,1.73,.48,.25,.2,.04);
- for(const sx of [-.48,.48]){const wheel=cylinder(g,M.dark,sx,.2,.43,.18,.1);wheel.rotation.x=Math.PI/2;const hub=cylinder(g,M.edge,sx,.2,.49,.07,.11);hub.rotation.x=Math.PI/2}
- for(let j=0;j<4;j++){ball(g,[M.red,M.yellow,M.green,M.red][(j+kind)%4],-.48+j*.32,1.04,.32,.11);cylinder(g,[M.red,M.yellow,M.green][(j+kind)%3],-.48+j*.32,1.22,.33,.07,.09)}
- box(g,M.cream,0,1.48,.53,.78,.22,.06);
- // Friendly chai seller behind the counter, matching the game's Indian street concept art.
- const seller=new THREE.Group();seller.position.set(0,.12,-.24);g.add(seller);mesh(new THREE.CapsuleGeometry(.19,.32,4,8),mat('#2678a0'),seller,0,.95,0,1,1,.85);ball(seller,M.skin,0,1.35,0,.17);ball(seller,mat('#293438'),0,1.43,-.015,.17);ball(seller,M.cream,-.055,1.36,.15,.018);ball(seller,M.cream,.055,1.36,.15,.018);mesh(new THREE.CapsuleGeometry(.045,.22,3,6),M.skin,seller,.24,1.04,.03,1,1,1).rotation.z=-.65;ball(seller,M.gold,.32,1.13,.13,.065);
- // Bright roadside menu board and little warm bulbs make the food stalls read clearly at a distance.
- box(g,mat('#fff0a6'),0,2.18,-.04,1.05,.28,.09);box(g,mat('#b83227'),0,2.18,.015,.94,.19,.035);
- for(let j=0;j<5;j++)ball(g,mat('#ffe16a',.35),-.42+j*.21,2.18,.06,.035);
- for(let j=0;j<3;j++){const steam=mesh(new THREE.TorusGeometry(.07,.018,4,8),M.white,g,-.22+j*.22,1.55,.36+j*.015);steam.rotation.x=Math.PI/2;steam.rotation.y=.3}
+ const g=new THREE.Group();g.position.set(x,0,z);decorGroup.add(g);
+ const canopy=[M.red,M.yellow,M.green][kind%3],counter=[mat('#956044'),mat('#317c67'),mat('#bd873b')][kind%3],metal=mat('#6c6b60',.82,.2);
+ // Simple steel-tube frame and corrugated sheet awning.
+ for(const sx of [-.78,.78]){box(g,M.wood,sx,1.18,0,.065,1.55,.065);box(g,metal,sx,1.88,-.04,.04,.12,1.25)}
+ box(g,metal,0,1.92,-.03,1.72,.09,1.28);
+ for(let i=0;i<12;i++){const rib=box(g,mat('#77796f',.85,.25),-.79+i*.144,1.975,-.03,.025,.035,1.22)}
+ for(let i=0;i<6;i++)box(g,i%2?M.yellow:canopy,-.72+i*.288,1.84,.04,.285,.07,1.12);
+ // Counter front, worn timber top and shelves behind it.
+ box(g,counter,0,.76,.12,1.78,.24,.72);box(g,mat('#7b5137'),0,.61,.12,1.86,.09,.78);box(g,mat('#b7a17a'),0,.91,.48,1.84,.045,.08);
+ for(let j=0;j<3;j++)box(g,mat('#694832'),0,1.12+j*.18,-.22,1.5,.035,.42);
+ // Reusable crates, produce baskets, jars and packet boxes.
+ for(let i=0;i<4;i++){const xx=-.62+i*.41;box(g,mat('#986039'),xx,.99,.31,.32,.26,.27);box(g,mat('#c18a51'),xx,1.125,.45,.3,.02,.02)}
+ for(let i=0;i<5;i++){const xx=-.66+i*.32;cylinder(g,[M.red,M.yellow,M.green][(i+kind)%3],xx,1.17,.2,.06,.12);box(g,mat(i%2?'#d9b94b':'#e7d9b6'),xx,1.26,.22,.09,.1,.07)}
+ // Shop fascia and small sign panel.
+ box(g,M.cream,0,1.58,.55,.92,.24,.055);box(g,mat('#b83227'),0,1.58,.585,.78,.16,.025);
+ // Stallkeeper stands behind counter, not floating in front of it.
+ const seller=new THREE.Group();seller.position.set(0,.05,-.3);g.add(seller);
+ mesh(new THREE.CapsuleGeometry(.18,.35,4,8),mat('#2678a0'),seller,0,.95,0,1,1,.85);
+ ball(seller,M.skin,0,1.35,0,.16);ball(seller,mat('#293438'),0,1.43,-.015,.15);
+ for(const xx of [-.055,.055])ball(seller,M.cream,xx,1.36,.14,.018);
+ mesh(new THREE.CapsuleGeometry(.04,.22,3,6),M.skin,seller,.23,1.04,.03).rotation.z=-.65;
  return g
 }
 function makeAuto(parent){
