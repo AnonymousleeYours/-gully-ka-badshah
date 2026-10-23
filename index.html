@@ -128,6 +128,7 @@ function makeBuilding(x,z,side,kind){
  return g
 }
 function makeTree(x,z){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.025};decorGroup.add(g);cylinder(g,M.wood,0,.92,0,.16,1.84);for(let a=0;a<4;a++){const branch=box(g,M.wood,Math.cos(a*1.57)*.18,1.25,Math.sin(a*1.57)*.18,.07,.72,.07);branch.rotation.z=(a%2?-.42:.42)}for(const [x1,y,z1,s,col] of [[0,2.15,0,.72,'#397c3f'],[-.43,1.95,.06,.52,'#2f7040'],[.43,1.96,-.06,.54,'#4a9149'],[0,2.55,-.08,.48,'#4d9650'],[-.2,2.22,.35,.35,'#5a9c4c']])ball(g,mat(col),x1,y,z1,s);return g}
+function makeUtilityPole(x,z,side){const g=new THREE.Group();g.position.set(x,0,z);decorGroup.add(g);const concrete=mat('#807c70',.95),metal=mat('#4d4b43',.75,.2),wire=mat('#282b29',.65,.25);cylinder(g,concrete,0,2.65,0,.105,5.3);box(g,metal,0,4.95,0,.95,.09,.12);for(const dx of [-.34,0,.34]){cylinder(g,mat('#c1b8a0',.7),dx,5.12,0,.045,.22);ball(g,mat('#4d554f'),dx,5.27,0,.07)}for(let k=0;k<3;k++){const x1=-.32+k*.32;const curve=new THREE.CatmullRomCurve3([new THREE.Vector3(x1,5.23,0),new THREE.Vector3(x1,5.02,-3.5),new THREE.Vector3(x1,4.98,-7),new THREE.Vector3(x1,5.02,-10.5),new THREE.Vector3(x1,5.23,-14)]);mesh(new THREE.TubeGeometry(curve,18,.018,5,false),wire,g)}box(g,metal,side<0?.18:-.18,2.25,.08,.38,.5,.2);return g}
 function makeLamp(x,z){const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.018};decorGroup.add(g);cylinder(g,M.dark,0,1.5,0,.055,3);box(g,M.dark,.28,2.9,0,.6,.06,.06);ball(g,M.yellow,.55,2.82,0,.12);return g}
 function makeStall(x,z,side,kind){
  const g=new THREE.Group();g.position.set(x,0,z);g.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.035};decorGroup.add(g);
@@ -289,15 +290,16 @@ function makePlayer(){
  const g=new THREE.Group();
  const shadow=mesh(new THREE.CircleGeometry(.5,16),mat('#25332b'),g,0,.025,0,1.1,1,.7);shadow.rotation.x=-Math.PI/2;
  const body=new THREE.Group();body.position.y=.9;g.add(body);
- const skin=mat('#bd7a50'),shirt=mat('#e85d3c'),pants=mat('#203449'),shoe=mat('#f6e8c7'),hair=mat('#293438'),yellow=mat('#ffc735');
+ const skin=mat('#9a6043',.92),shirt=mat('#d86b24',.88),pants=mat('#24282b',.95),shoe=mat('#b8b3a7',.9),hair=mat('#171b1b',.98),yellow=mat('#ffc735');
  // Rounded torso and head for a classic endless-runner silhouette.
  mesh(new THREE.CapsuleGeometry(.29,.48,4,8),shirt,body,0,.08,0,1,1, .78);
  cylinder(body,skin,0,.43,0,.115,.18);
  ball(body,skin,0,.72,0,.255);
- // Hair cap and fringe.
+ // Short, dark hair with a rounded rear silhouette for the behind-the-runner camera.
  ball(body,hair,0,.84,-.025,.25);
  ball(body,hair,-.16,.78,.11,.105);ball(body,hair,.13,.79,.12,.10);
- // Face details: layered brows, eye highlights, ears and a subtle smile.
+ ball(body,hair,0,.69,-.12,.205);
+ // Face details remain part of the model; the runner is rotated to face down the street.
  ball(body,skin,-.245,.69,.015,.055);ball(body,skin,.245,.69,.015,.055);
  ball(body,mat('#fff9e7'),-.085,.73,.222,.045);ball(body,mat('#fff9e7'),.085,.73,.222,.045);
  ball(body,hair,-.075,.73,.259,.021);ball(body,hair,.095,.73,.259,.021);
@@ -315,14 +317,14 @@ function makePlayer(){
    mesh(new THREE.CapsuleGeometry(.09,.18,3,6),shoe,leg,0,-.34,.09,1,.65,1.25);
    legs.push(leg);
  }
- g.userData={body,arms,legs};g.position.set(0,0,3.2);scene.add(g);return g
+ g.userData={body,arms,legs};g.position.set(0,0,3.2);g.rotation.y=Math.PI;scene.add(g);return g
 }
 player=makePlayer();
 const laneX=[-2.05,0,2.05],LANE_WIDTH=4.8,ROAD_LEN=24,roadSegments=[];
-function buildRoad(){for(let i=0;i<6;i++){const g=new THREE.Group();g.position.z=-i*ROAD_LEN;roadGroup.add(g);box(g,M.road,0,-.12,-ROAD_LEN/2,10,.24,ROAD_LEN);box(g,M.side,-5.7,-.08,-ROAD_LEN/2,1.5,.18,ROAD_LEN);box(g,M.side,5.7,-.08,-ROAD_LEN/2,1.5,.18,ROAD_LEN);for(let z=-ROAD_LEN+2;z<0;z+=4){for(let x of [-1.02,1.02])box(g,M.lane,x,.015,z,.055,.025,1.6)}roadSegments.push(g)}}
+function buildRoad(){for(let i=0;i<6;i++){const g=new THREE.Group();g.position.z=-i*ROAD_LEN;roadGroup.add(g);box(g,M.road,0,-.12,-ROAD_LEN/2,10,.24,ROAD_LEN);box(g,M.side,-5.7,-.08,-ROAD_LEN/2,1.5,.18,ROAD_LEN);box(g,M.side,5.7,-.08,-ROAD_LEN/2,1.5,.18,ROAD_LEN);for(let side of [-1,1]){box(g,mat('#897d69',.98),side*5.28,-.045,-ROAD_LEN/2,.16,.11,ROAD_LEN);for(let j=0;j<9;j++){const z=-2-j*2.4;box(g,mat(j%3===0?'#9d8d75':'#b2a28b',.99),side*5.55,-.012,z,.45,.025,1.55)}}for(let z=-ROAD_LEN+2;z<0;z+=4){for(let x of [-1.02,1.02]){const mark=box(g,M.lane,x,.015,z,.055,.025,1.45);mark.material=mat('#d7d0be',.95)}}roadSegments.push(g)}}
 buildRoad();
 const decorations=[];let environment=0;
-function populateEnvironment(env){clearGroup(decorGroup);decorations.length=0;environment=env;for(let side of [-1,1])for(let i=0;i<16;i++){const z=-i*7-5,x=side*(7.4+(i%3)*.7);let type=(i+env)%4;if(env!==1&&i%5===2){makeStall(side*6.65,z,side,i+env);continue}if(i%7===3){const p=makePedestrian(['police','schoolboy','schoolgirl','uncle'][(i+env)%4]);p.position.set(side*6.85,0,z);p.rotation.y=side<0?Math.PI:0;p.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.025};decorGroup.add(p);continue}if(env===1&&type===0)makeTree(x,z);else if(env===2&&type===1)makeLamp(x,z);else if(type===2){const b=makeBuilding(x,z,side,(i+env)%6);if(env===2){box(b,M.yellow,0,4.25,0,2.5,.08,.1)}}else if(type===0){makeTree(x,z)}else makeLamp(x,z)}}
+function populateEnvironment(env){clearGroup(decorGroup);decorations.length=0;environment=env;for(let side of [-1,1])for(let i=0;i<16;i++){const z=-i*7-5,x=side*(7.4+(i%3)*.7);let type=(i+env)%4;if(env!==1&&i%5===2){makeStall(side*6.65,z,side,i+env);continue}if(i%7===3){const p=makePedestrian(['police','schoolboy','schoolgirl','uncle'][(i+env)%4]);p.position.set(side*6.85,0,z);p.rotation.y=side<0?Math.PI:0;p.userData.bob={baseY:0,phase:Math.random()*6.28,amp:.025};decorGroup.add(p);continue}if(i%4===1){makeUtilityPole(side*6.25,z,side);continue}if(env===1&&type===0)makeTree(x,z);else if(env===2&&type===1)makeLamp(x,z);else if(type===2){const b=makeBuilding(x,z,side,(i+env)%6);if(env===2){box(b,M.yellow,0,4.25,0,2.5,.08,.1)}}else if(type===0){makeTree(x,z)}else makeLamp(x,z)}}
 populateEnvironment(0);
 const obstaclePool=[],coinPool=[],particlePool=[];
 function makeObstacle(type){let g=new THREE.Group();if(type==='auto')g.add(makeAuto());else if(type==='cow')g.add(makeCow());else if(type==='dog')g.add(makeDog());else if(type==='crate')g.add(makeCrate());else if(type==='pipe')g.add(makePipe());else if(type==='pothole')g.add(makePothole());else if(type==='banner')g.add(makeBanner());else{mesh(new THREE.CapsuleGeometry(.5,.35,4,8),M.yellow,g,0,.48,0,1.25,.8,.4);for(let x of [-.4,.4])mesh(new THREE.CapsuleGeometry(.07,.28,3,6),M.cream,g,x,.48,.18,1,1,.8)}
@@ -360,7 +362,7 @@ function update(dt){elapsed+=dt;distance+=dt*(chai>0?1.35:1);speed=Math.min(19,1
  for(const c of coinPool){if(!c.active)continue;c.z+=speed*dt;c.g.position.z=c.z;c.g.position.y=1.25+Math.sin(worldTime*5+c.phase)*.15;c.g.rotation.z=worldTime*2;if(magnet>0&&c.z>-10&&c.z<4){c.g.position.x=THREE.MathUtils.damp(c.g.position.x,player.position.x,.9,dt);if(Math.abs(c.g.position.x-player.position.x)<.85&&c.z>1.5&&c.z<4){coins++;c.active=false;c.g.visible=false;burst(player.position.x,1,3,'#ffd447',4);beep(750,.035);continue}}if(c.z>2.4&&c.z<4&&c.lane===Math.round(lane)){coins++;c.active=false;c.g.visible=false;burst(player.position.x,1,3,'#ffd447',4);beep(750,.035)}else if(c.z>5){c.active=false;c.g.visible=false}}for(const m of magnetPool){if(!m.active)continue;m.z+=speed*dt;m.g.position.z=m.z;m.g.rotation.y=worldTime*2;if(m.z>1.7&&m.z<4&&Math.abs(player.position.x-m.g.position.x)<1.1){magnet=8;m.active=false;m.g.visible=false;toast('🧲 COIN MAGNET ACTIVATED!');beep(620,.12)}else if(m.z>5){m.active=false;m.g.visible=false}}
  for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.life-=dt;p.m.position.x+=p.vx*dt;p.m.position.y+=p.vy*dt;p.m.position.z+=p.vz*dt;p.vy-=7*dt;p.m.scale.multiplyScalar(.97);if(p.life<=0){particleGroup.remove(p.m);if(p.m.material)p.m.material.dispose();particles.splice(i,1)}}
  environmentTimer+=dt;if(environmentTimer>32){environmentTimer=0;setEnvironment(environment+1)}
- camera.position.x=THREE.MathUtils.damp(camera.position.x,lane*.28,3.5,dt);camera.position.y=5.4+jumpY*.12+Math.sin(worldTime*speed*.45)*.035;camera.lookAt(lane*.12,1.1+jumpY*.08,-8);if(shake>0){camera.position.x+=(Math.random()-.5)*shake;camera.position.y+=(Math.random()-.5)*shake;shake=Math.max(0,shake-dt)}hud()}
+ camera.position.x=THREE.MathUtils.damp(camera.position.x,lane*.22,3.5,dt);camera.position.y=4.9+jumpY*.08+Math.sin(worldTime*speed*.45)*.025;camera.position.z=10.8;camera.lookAt(lane*.12,1.05+jumpY*.06,-10);if(shake>0){camera.position.x+=(Math.random()-.5)*shake;camera.position.y+=(Math.random()-.5)*shake;shake=Math.max(0,shake-dt)}hud()}
 let rafId=0;function animate(){rafId=requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.033);if(state==='playing')update(dt);else if(state==='menu'){worldTime+=dt;player.position.y=Math.sin(worldTime*2)*.06;player.rotation.y=Math.sin(worldTime)*.06;const phase=worldTime*7;player.userData.legs.forEach((l,i)=>l.rotation.x=Math.sin(phase+i*Math.PI)*.16);player.userData.arms.forEach((a,i)=>a.rotation.x=-Math.sin(phase+i*Math.PI)*.14)}renderer.render(scene,camera)}
 animate();
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.35));renderer.setSize(innerWidth,innerHeight,false)});
