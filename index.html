@@ -115,12 +115,18 @@ function makeBuilding(x,z,side,kind){
  box(g,door,-1.38,1.48,1.12,.07,.8,.06);
  box(g,trim,-1.2,1.12,1.16,.24,.34,.1);
  box(g,roof,-1.2,1.34,1.18,.28,.06,.12);
- // One house in each set gets a small striped shop awning.
+ // Ground-floor kirana/chai frontage: striped awning, bold fascia and hanging sign.
  if(kind%3===0){
   box(g,trim,0,1.93,1.26,1.95,.12,.36);
   for(let i=0;i<6;i++)box(g,i%2?M.green:M.red,-.81+i*.324,1.79,1.27,.32,.18,.33);
   box(g,door,0,2.12,1.25,1.45,.28,.08);
   box(g,trim,0,2.12,1.30,1.28,.15,.025);
+  const fascia=box(g,mat('#9e2f25'),0,2.13,1.355,1.24,.17,.035);
+  const stripes=[mat('#ffe29a'),mat('#f4c64d'),mat('#e9d6ac')];
+  for(let k=0;k<3;k++)box(g,stripes[k],-.38+k*.38,2.13,1.38,.22,.055,.012);
+  box(g,door,side<0?1.22:-1.22,1.88,1.38,.32,.5,.055);
+  box(g,mat('#e9bf54'),side<0?1.22:-1.22,1.88,1.415,.23,.39,.018);
+  for(let k=0;k<3;k++)box(g,mat(['#b64032','#27694c','#e5d5a9'][k]),(side<0?1.22:-1.22),1.98-k*.1,1.43,.16,.025,.012);
  }
  // Subtle weathering and patched plaster marks.
  const stain=mat('#947b61',.99);
