@@ -310,7 +310,7 @@ function renderCharacterSelection(){const ch=characters[selectedCharacter];$('ch
 function chooseCharacter(delta){selectedCharacter=(selectedCharacter+delta+characters.length)%characters.length;renderCharacterSelection();if(player){const old=player;player=makePlayer(characters[selectedCharacter]);scene.remove(old)}}
 function makePlayer(character=characters[selectedCharacter]){
  const g=new THREE.Group();
- const shadow=mesh(new THREE.CircleGeometry(.5,16),mat('#25332b'),g,0,.025,0,1.1,1,.7);shadow.rotation.x=-Math.PI/2;
+ // Removed the character-attached ground disk; it incorrectly followed jumps.
  const body=new THREE.Group();body.position.y=.9;g.add(body);
  const skin=mat(character.skin,.88),shirt=mat(character.shirt,.88),pants=mat(character.pants,.95),shoe=mat(character.shoe,.88),hair=mat(character.hair,.98),yellow=mat(character.scarf,.62);shirt.map=fabricTexture;pants.map=fabricTexture;shirt.needsUpdate=pants.needsUpdate=true;
  // Rounded torso and head for a classic endless-runner silhouette.
