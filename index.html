@@ -286,12 +286,12 @@ function makePothole(parent){const g=new THREE.Group();
  // Flat asphalt break: ragged, textured layers sit nearly level with the road.
  function ragged(rx,rz,count,seed){const shape=new THREE.Shape();let n=seed;const rnd=()=>{n=(n*1664525+1013904223)>>>0;return n/4294967296};for(let i=0;i<count;i++){const a=i/count*Math.PI*2,r=.84+rnd()*.32,x=Math.cos(a)*rx*r,y=Math.sin(a)*rz*r;if(i===0)shape.moveTo(x,y);else shape.lineTo(x,y)}shape.closePath();return shape}
  function flat(shape,material,y){const layer=mesh(new THREE.ShapeGeometry(shape),material,g,0,y,0);layer.rotation.x=-Math.PI/2;return layer}
- const wornEdge=M.road.clone();wornEdge.color.set('#a1a095');wornEdge.roughness=1;wornEdge.metalness=0;
- const brokenAsphalt=M.road.clone();brokenAsphalt.color.set('#666b66');brokenAsphalt.roughness=1;brokenAsphalt.metalness=0;
- const recess=M.road.clone();recess.color.set('#252b29');recess.roughness=1;recess.metalness=0;
- flat(ragged(.72,.44,15,37),wornEdge,.008);
- flat(ragged(.59,.35,13,91),brokenAsphalt,.012);
- flat(ragged(.45,.265,11,163),recess,.016);
+ const wornEdge=M.road.clone();wornEdge.color.set('#c2bdab');wornEdge.roughness=1;wornEdge.metalness=0;
+ const brokenAsphalt=M.road.clone();brokenAsphalt.color.set('#555b55');brokenAsphalt.roughness=1;brokenAsphalt.metalness=0;
+ const recess=M.road.clone();recess.color.set('#171d1b');recess.roughness=1;recess.metalness=0;
+ flat(ragged(.86,.52,15,37),wornEdge,.008);
+ flat(ragged(.69,.42,13,91),brokenAsphalt,.012);
+ flat(ragged(.54,.32,11,163),recess,.016);
  return g}
 function makeBanner(parent){
  const g=new THREE.Group(),pole=mat('#755538',.9),cloth=mat('#c83f32',.95);
